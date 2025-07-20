@@ -6,31 +6,34 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id            String    @id @map("_id")
+  id        String   @id
+  createdAt DateTime
+  updatedAt DateTime
+
   name          String
   email         String
   emailVerified Boolean
   image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  sessions      Session[]
-  accounts      Account[]
+  role          String?
+  completed     Boolean @default(false)
+
+  sessions Session[]
+  accounts Account[]
 
   @@unique([email])
   @@map("user")
 }
 
 model Session {
-  id        String   @id @map("_id")
+  id        String   @id
   expiresAt DateTime
   token     String
   createdAt DateTime
@@ -45,7 +48,7 @@ model Session {
 }
 
 model Account {
-  id                    String    @id @map("_id")
+  id                    String    @id
   accountId             String
   providerId            String
   userId                String
@@ -64,7 +67,7 @@ model Account {
 }
 
 model Verification {
-  id         String    @id @map("_id")
+  id         String    @id
   identifier String
   value      String
   expiresAt  DateTime
