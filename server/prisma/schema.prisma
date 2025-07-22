@@ -22,11 +22,13 @@ model User {
   email         String
   emailVerified Boolean
   image         String?
-  role          String?
+  role          String @default("intern")
   completed     Boolean @default(false)
 
   sessions Session[]
   accounts Account[]
+  company  Company[]
+  intern   Intern[]
 
   @@unique([email])
   @@map("user")
@@ -34,45 +36,95 @@ model User {
 
 model Session {
   id        String   @id
-  expiresAt DateTime
-  token     String
   createdAt DateTime
   updatedAt DateTime
+  expiresAt DateTime
+
+  token     String
   ipAddress String?
   userAgent String?
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
   @@map("session")
 }
 
 model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
+  id        String   @id
+  createdAt DateTime
+  updatedAt DateTime
+
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime
-  updatedAt             DateTime
+
+  accountId    String
+  providerId   String
+  userId       String
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken  String?
+  refreshToken String?
+  idToken      String?
+  scope        String?
+  password     String?
 
   @@map("account")
 }
 
 model Verification {
-  id         String    @id
+  id        String    @id
+  createdAt DateTime?
+  updatedAt DateTime?
+  expiresAt DateTime
+
   identifier String
   value      String
-  expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Company {
+  id        String    @id @default(uuid())
+  createdAt DateTime?
+  updatedAt DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name                String
+  industry            String
+  description         String
+  size                String
+  year                Int
+  email               String  
+  phone               String?
+  website             String?
+  location            String
+  additionalLocations String?
+  values              String?
+
+  @@map("company")
+}
+
+model Intern {
+  id        String    @id @default(uuid())
+  createdAt DateTime?
+  updatedAt DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name                String
+  industry            String
+  description         String
+  size                String
+  year                Int
+  email               String  @unique
+  phone               String?
+  website             String?
+  location            String
+  additionalLocations String?
+  values              String?
+
+  @@map("intern")
 }

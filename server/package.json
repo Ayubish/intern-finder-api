@@ -6,7 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
     "start": "node dist/server.js",
-    "dev": "concurrently -k \"tsc -w\" \"nodemon dist/server.js\""
+    "dev": "npx prisma db push && concurrently -k \"tsc -w\" \"nodemon dist/server.js\""
   },
   "keywords": [],
   "author": "",
@@ -15,12 +15,16 @@
   "dependencies": {
     "@prisma/client": "^6.12.0",
     "@types/express": "^5.0.3",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.0.14",
+    "@types/sharp": "^0.31.1",
     "better-auth": "^1.2.12",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "mongodb": "^6.17.0",
-    "mongoose": "^8.16.4"
+    "mongoose": "^8.16.4",
+    "multer": "^2.0.2",
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
