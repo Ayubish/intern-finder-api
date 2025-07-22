@@ -1,8 +1,7 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, string } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "@prisma/client";
- 
-const prisma = new PrismaClient();
+import { prisma } from "./prisma";
+
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
@@ -10,7 +9,15 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {
     enabled: true, 
-  }, 
-  // trustedOrigins:["http://localhost:3000/"],
+    
+  },
+  session:{
 
+  },
+  user: {
+  additionalFields: {
+    role: { type: "string" }
+  }
+}
 });
+
