@@ -96,10 +96,10 @@ model Company {
   description         String
   size                String
   year                Int
-  email               String  
+  contactEmail       String  
   phone               String?
   website             String?
-  location            String
+  headQuarter         String
   additionalLocations String?
   values              String?
 
