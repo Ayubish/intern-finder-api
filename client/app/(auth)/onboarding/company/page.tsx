@@ -34,7 +34,7 @@ const industries = [
     "Other",
 ]
 
-const companySizes = [
+const sizes = [
     "1-10 employees",
     "11-50 employees",
     "51-200 employees",
@@ -57,7 +57,7 @@ const valueOptions = [
 
 export default function CompanyOnboarding() {
     const [currentStep, setCurrentStep] = useState(1)
-    const [logoFile, setLogoFile] = useState<File | null>(null)
+    const [image, setImage] = useState<File | null>(null)
 
     const totalSteps = 5
     const progress = (currentStep / totalSteps) * 100
@@ -65,17 +65,17 @@ export default function CompanyOnboarding() {
     const form = useForm<CompanyOnboardingData>({
         resolver: zodResolver(companyOnboardingSchema),
         defaultValues: {
-            companyName: "",
+            name: "",
             industry: "",
-            companySize: "",
-            foundedYear: "",
+            size: "",
+            year: "",
             description: "",
             website: "",
-            headquarters: "",
-            locations: [],
+            headQuarter: "",
+            additionalLocations: [],
             contactEmail: "",
-            contactPhone: "",
-            companyValues: [],
+            phone: "",
+            values: [],
         },
     })
 
@@ -95,13 +95,13 @@ export default function CompanyOnboarding() {
 
         switch (currentStep) {
             case 1:
-                fieldsToValidate = ["companyName", "industry"]
+                fieldsToValidate = ["name", "industry"]
                 break
             case 2:
-                fieldsToValidate = ["description", "companySize"]
+                fieldsToValidate = ["description", "size"]
                 break
             case 3:
-                fieldsToValidate = ["contactEmail", "headquarters"]
+                fieldsToValidate = ["contactEmail", "headQuarter", "website"]
                 break
             case 4:
                 return true
@@ -125,7 +125,7 @@ export default function CompanyOnboarding() {
         setCurrentStep((prev) => Math.max(prev - 1, 1))
     }
 
-    const onSubmit = (data: CompanyOnboardingData) => {
+    const onSubmit = async (data: CompanyOnboardingData) => {
         const formData = new FormData()
 
         // Append all form data
@@ -138,23 +138,36 @@ export default function CompanyOnboarding() {
         })
 
         // Append logo file if exists
-        if (logoFile) {
-            formData.append("companyLogo", logoFile)
+        if (image) {
+            formData.append("image", image)
         }
 
         console.log("Form submitted:", data)
-        console.log("Logo file:", logoFile)
+        console.log("Logo file:", image)
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/company`, {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+        })
+
+        if (!res.ok) {
+            const error = await res.text()
+            alert(`Failed to create company profile: ${error}`)
+            return
+        }
+
 
         // Here you would typically send the formData to your backend
         alert("Company profile created successfully!")
     }
 
     const toggleValue = (value: string) => {
-        const currentValues = watchedValues.companyValues || []
+        const currentValues = watchedValues.values || []
         const newValues = currentValues.includes(value)
             ? currentValues.filter((v) => v !== value)
             : [...currentValues, value]
-        setValue("companyValues", newValues)
+        setValue("values", newValues)
     }
 
     const renderStep = () => {
@@ -170,17 +183,20 @@ export default function CompanyOnboarding() {
                         <div className="space-y-6">
 
                             <div className="space-y-2">
-                                <Label htmlFor="companyName">Company Name *</Label>
+                                <Label htmlFor="name">Company Name *</Label>
                                 <Input
-                                    id="companyName"
-                                    {...register("companyName")}
+                                    id="name"
+                                    {...register("name")}
                                     placeholder="Enter your company name"
-                                    className={errors.companyName ? "border-red-500" : ""}
+                                    className={errors.name ? "border-red-500" : ""}
                                 />
-                                {errors.companyName && <p className="text-sm text-red-500 mt-1">{errors.companyName.message}</p>}
+                                {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Company Logo *</Label>
+                                <FileUpload onFileChange={setImage} currentFile={image} accept="image/*" maxSize={5} />
                             </div>
 
-                            <FileUpload onFileChange={setLogoFile} currentFile={logoFile} accept="image/*" maxSize={5} />
                             <div className="space-y-2">
                                 <Label htmlFor="industry">Industry *</Label>
                                 <Select value={watchedValues.industry} onValueChange={(value) => setValue("industry", value)}>
@@ -224,28 +240,28 @@ export default function CompanyOnboarding() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="companySize">Company Size *</Label>
-                                <Select value={watchedValues.companySize} onValueChange={(value) => setValue("companySize", value)}>
-                                    <SelectTrigger className={errors.companySize ? "border-red-500" : ""}>
+                                <Label htmlFor="size">Company Size *</Label>
+                                <Select value={watchedValues.size} onValueChange={(value) => setValue("size", value)}>
+                                    <SelectTrigger className={errors.size ? "border-red-500" : ""}>
                                         <SelectValue placeholder="Select company size" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {companySizes.map((size) => (
+                                        {sizes.map((size) => (
                                             <SelectItem key={size} value={size}>
                                                 {size}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                {errors.companySize && <p className="text-sm text-red-500 mt-1">{errors.companySize.message}</p>}
+                                {errors.size && <p className="text-sm text-red-500 mt-1">{errors.size.message}</p>}
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="foundedYear">Founded Year</Label>
+                                <Label htmlFor="year">Founded Year</Label>
                                 <Input
-                                    id="foundedYear"
+                                    id="year"
                                     type="number"
-                                    {...register("foundedYear")}
+                                    {...register("year")}
                                     placeholder="2020"
                                     min="1800"
                                     max={new Date().getFullYear()}
@@ -278,8 +294,8 @@ export default function CompanyOnboarding() {
                             </div>
 
                             <div>
-                                <Label htmlFor="contactPhone">Contact Phone (Optional)</Label>
-                                <Input id="contactPhone" type="tel" {...register("contactPhone")} placeholder="+1 (555) 123-4567" />
+                                <Label htmlFor="phone">Contact Phone (Optional)</Label>
+                                <Input id="phone" type="tel" {...register("phone")} placeholder="+1 (555) 123-4567" />
                             </div>
                             <div>
                                 <Label htmlFor="website">Company Website</Label>
@@ -294,25 +310,25 @@ export default function CompanyOnboarding() {
                             </div>
 
                             <div>
-                                <Label htmlFor="headquarters">Headquarters *</Label>
+                                <Label htmlFor="headQuarter">headQuarter *</Label>
                                 <Input
-                                    id="headquarters"
-                                    {...register("headquarters")}
+                                    id="headQuarter"
+                                    {...register("headQuarter")}
                                     placeholder="City, State, Country"
-                                    className={errors.headquarters ? "border-red-500" : ""}
+                                    className={errors.headQuarter ? "border-red-500" : ""}
                                 />
-                                {errors.headquarters && <p className="text-sm text-red-500 mt-1">{errors.headquarters.message}</p>}
+                                {errors.headQuarter && <p className="text-sm text-red-500 mt-1">{errors.headQuarter.message}</p>}
                             </div>
 
                             <div>
-                                <Label htmlFor="locations">Additional Locations</Label>
+                                <Label htmlFor="additionalLocations">Additional additionalLocations</Label>
                                 <Input
-                                    id="locations"
-                                    value={(watchedValues.locations || []).join(", ")}
-                                    onChange={(e) => setValue("locations", e.target.value.split(", ").filter(Boolean))}
-                                    placeholder="Other office locations (comma separated)"
+                                    id="additionalLocations"
+                                    value={(watchedValues.additionalLocations || []).join(", ")}
+                                    onChange={(e) => setValue("additionalLocations", e.target.value.split(", ").filter(Boolean))}
+                                    placeholder="Other office additionalLocations (comma separated)"
                                 />
-                                <p className="text-sm text-gray-500 mt-1">Separate multiple locations with commas</p>
+                                <p className="text-sm text-gray-500 mt-1">Separate multiple additionalLocations with commas</p>
                             </div>
                         </div>
                     </div>
@@ -334,7 +350,7 @@ export default function CompanyOnboarding() {
                                         <div key={value} className="flex items-center space-x-2">
                                             <Checkbox
                                                 id={value}
-                                                checked={(watchedValues.companyValues || []).includes(value)}
+                                                checked={(watchedValues.values || []).includes(value)}
                                                 onCheckedChange={() => toggleValue(value)}
                                             />
                                             <Label htmlFor={value} className="text-sm font-normal">
@@ -361,30 +377,30 @@ export default function CompanyOnboarding() {
                                 <CardContent className="p-6 space-y-4">
                                     <h3 className="font-semibold text-lg">Company Information</h3>
 
-                                    {logoFile && (
+                                    {image && (
                                         <div className="flex items-center gap-3">
                                             <strong>Logo:</strong>
                                             <img
-                                                src={URL.createObjectURL(logoFile) || "/placeholder.svg"}
+                                                src={URL.createObjectURL(image) || "/placeholder.svg"}
                                                 alt="Company logo"
                                                 className="w-12 h-12 object-cover rounded"
                                             />
-                                            <span className="text-sm text-gray-600">{logoFile.name}</span>
+                                            <span className="text-sm text-gray-600">{image.name}</span>
                                         </div>
                                     )}
 
                                     <div>
-                                        <strong>Company:</strong> {watchedValues.companyName}
+                                        <strong>Company:</strong> {watchedValues.name}
                                     </div>
                                     <div>
                                         <strong>Industry:</strong> {watchedValues.industry}
                                     </div>
                                     <div>
-                                        <strong>Size:</strong> {watchedValues.companySize}
+                                        <strong>Size:</strong> {watchedValues.size}
                                     </div>
-                                    {watchedValues.foundedYear && (
+                                    {watchedValues.year && (
                                         <div>
-                                            <strong>Founded:</strong> {watchedValues.foundedYear}
+                                            <strong>Founded:</strong> {watchedValues.year}
                                         </div>
                                     )}
                                 </CardContent>
@@ -402,11 +418,11 @@ export default function CompanyOnboarding() {
                                         </div>
                                     )}
                                     <div>
-                                        <strong>Headquarters:</strong> {watchedValues.headquarters}
+                                        <strong>headQuarter:</strong> {watchedValues.headQuarter}
                                     </div>
-                                    {watchedValues.locations && watchedValues.locations.length > 0 && (
+                                    {watchedValues.additionalLocations && watchedValues.additionalLocations.length > 0 && (
                                         <div>
-                                            <strong>Other Locations:</strong> {watchedValues.locations.join(", ")}
+                                            <strong>Other additionalLocations:</strong> {watchedValues.additionalLocations.join(", ")}
                                         </div>
                                     )}
                                 </CardContent>
@@ -418,20 +434,20 @@ export default function CompanyOnboarding() {
                                     <div>
                                         <strong>Email:</strong> {watchedValues.contactEmail}
                                     </div>
-                                    {watchedValues.contactPhone && (
+                                    {watchedValues.phone && (
                                         <div>
-                                            <strong>Phone:</strong> {watchedValues.contactPhone}
+                                            <strong>Phone:</strong> {watchedValues.phone}
                                         </div>
                                     )}
                                 </CardContent>
                             </Card>
 
-                            {watchedValues.companyValues && watchedValues.companyValues.length > 0 && (
+                            {watchedValues.values && watchedValues.values.length > 0 && (
                                 <Card>
                                     <CardContent className="p-6 space-y-4">
                                         <h3 className="font-semibold text-lg">Company Values</h3>
                                         <div className="flex flex-wrap gap-2">
-                                            {watchedValues.companyValues.map((value) => (
+                                            {watchedValues.values.map((value) => (
                                                 <Badge key={value} variant="secondary">
                                                     {value}
                                                 </Badge>

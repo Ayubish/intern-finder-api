@@ -8,22 +8,23 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { authClient, signIn } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-// 1. Define Zod schema
 const formSchema = z
     .object({
         email: z.string().email({ message: "Invalid email address" }),
         password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-        confirmPassword: z.string(),
     })
-    .refine((data) => data.password === data.confirmPassword, {
-        path: ["confirmPassword"],
-        message: "Passwords do not match",
-    });
 
 type FormData = z.infer<typeof formSchema>;
 
 export default function CompanySignUp() {
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState("")
+    const router = useRouter();
     const {
         register,
         handleSubmit,
@@ -32,17 +33,34 @@ export default function CompanySignUp() {
         resolver: zodResolver(formSchema),
     });
 
-    const onSubmit = (data: FormData) => {
-        console.log("Form Submitted:", data);
-        // handle registration logic here
+    const onSubmit = async (data: FormData) => {
+        setLoading(true)
+        await signIn.email({ ...data }, {
+            onSuccess: async () => {
+                toast.success("Logged in successfully!")
+                const { data } = await authClient.getSession()
+                if (data?.user.completed) {
+                    router.push("/")
+                } else {
+                    router.push(`/onboarding/${data?.user.role}`)
+                }
+
+            },
+            onError: (ctx) => {
+                setError(ctx.error.message)
+
+            }
+        })
+        setLoading(false)
+
     };
 
     return (
         <div className="flex min-h-screen">
             <div className="w-1/2 max-md:w-full items-center p-10 min-h-full flex flex-col">
                 <div className="w-full md:max-w-8/10">
-                    <h2 className="text-2xl font-semibold">Sign Up to Interno</h2>
-                    <p>Fill out the information to create an account</p>
+                    <h2 className="text-2xl font-semibold">Sign In to Interno</h2>
+                    <p>Fill out the information to log in to your account</p>
                 </div>
                 <div className="w-full md:max-w-8/10">
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pt-10">
@@ -56,14 +74,11 @@ export default function CompanySignUp() {
                             <Input type="password" id="password" {...register("password")} placeholder="Enter password" />
                             {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm Password</Label>
-                            <Input type="password" id="confirmPassword" {...register("confirmPassword")} placeholder="Re-enter password" />
-                            {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>}
-                        </div>
+                        {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                        <Button type="submit" className="w-full shadow-sm py-1 text-base">
-                            Sign Up
+
+                        <Button type="submit" disabled={loading} className="w-full shadow-sm py-1 text-base">
+                            {loading ? "Loading" : "Sign In"}
                         </Button>
                     </form>
 
@@ -76,10 +91,11 @@ export default function CompanySignUp() {
                         Continue with Google
                     </Button>
 
+
                     <p className="text-center py-3">
-                        Already have an account?{" "}
-                        <Link href="/login" className="text-primary underline">
-                            Log In
+                        Don't have an account?{" "}
+                        <Link href="/signup" className="text-primary underline">
+                            Sign Up
                         </Link>
                     </p>
                 </div>
