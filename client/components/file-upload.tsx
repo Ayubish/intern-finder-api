@@ -72,8 +72,6 @@ export function FileUpload({ onFileChange, accept = "image/*", maxSize = 5, curr
 
     return (
         <div className="space-y-2">
-            <Label>Company Logo</Label>
-
             {preview || currentFile ? (
                 <div className="relative">
                     <div className="flex items-center gap-4 p-4 border rounded-lg bg-gray-50">
@@ -113,7 +111,7 @@ export function FileUpload({ onFileChange, accept = "image/*", maxSize = 5, curr
                             <Upload className="h-6 w-6 text-gray-400" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium">Drop your logo here, or click to browse</p>
+                            <p className="text-sm font-medium">Drop your file here, or click to browse</p>
                             <p className="text-xs text-gray-500">PNG, JPG up to {maxSize}MB</p>
                         </div>
                     </div>
