@@ -93,6 +93,7 @@ model Company {
 
   name                String
   industry            String
+  image               String?
   description         String
   size                String
   year                Int
@@ -116,13 +117,14 @@ model Intern {
 
   name                String
   industry            String
+  image               String?
   description         String
   size                String
   year                Int
-  email               String  @unique
+  contactEmail        String  
   phone               String?
   website             String?
-  location            String
+  headQuarter         String
   additionalLocations String?
   values              String?
 

@@ -12,8 +12,8 @@ app.use(cors())
 app.all("/api/auth/{*any}", toNodeHandler(auth));
 app.use(express.json());
 
-app.use("/",verifyUser,registerRouter)
-// app.get("/api/session", getSessionRoute);
+app.use("/api/register",verifyUser,registerRouter)
+
 
 
 
