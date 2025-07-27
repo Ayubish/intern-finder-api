@@ -234,6 +234,109 @@ export default function HomePage() {
         ))}
       </div>
     </section>
-    </div>
+    {/* Ratings & Reviews Section */}
+       <section className="px-6 md:px-20 py-16 bg-white">
+            <div className="max-w-7xl mx-auto space-y-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Ratings & Reviews</h2>
+
+          <div className="grid md:grid-cols-2 gap-10">
+            {/* Star breakdown */}
+                <div className="space-y-4">
+                {[5, 4, 3, 2, 1].map((star) => {
+                  const ratingsData: { [key: number]: { percent: number; count: string } } = {
+                    5: { percent: 30, count: "930" },
+                    4: { percent: 85, count: "4.5K" },
+                    3: { percent: 10, count: "50" },
+                    2: { percent: 5, count: "16" },
+                    1: { percent: 2, count: "8" },
+                  };
+
+                  const data = ratingsData[star];
+
+                  return (
+                    <div key={star} className="flex items-center gap-3 text-sm text-gray-700">
+                      {/* Star number and icon */}
+                      <div className="w-12 flex items-center justify-end gap-1 font-semibold">
+                        <span>{star}</span>
+                        <span className="text-yellow-400 text-lg">★</span>
+                      </div>
+
+                      {/* Progress bar */}
+                      <div className="flex-1 bg-gray-200 h-2 rounded-full overflow-hidden">
+                        <div
+                          className="bg-blue-600 h-full rounded-full"
+                          style={{ width: `${data.percent}%` }}
+                        />
+                      </div>
+
+                      {/* Count */}
+                      <div className="w-12 text-right font-bold text-gray-800">
+                        {data.count}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              
+            {/* Ratings summary box */}
+            <div className="bg-gray-100 shadow-md rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+              {/* Ratings */}
+              <div className="flex flex-col md:flex-row gap-10">
+                <div className="text-center space-y-1">
+                  <p className="text-4xl font-bold text-gray-900">4.3</p>
+                  <div className="text-yellow-400 text-2xl">★★★★★</div>
+                  <p className="text-sm text-gray-500">All Ratings</p>
+                </div>
+                <div className="text-center space-y-1">
+                  <p className="text-4xl font-bold text-gray-900">4.8</p>
+                  <div className="text-yellow-400 text-2xl">★★★★★</div>
+                  <p className="text-sm text-gray-500">Last Month</p>
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex flex-col gap-3 items-end">
+                <button className="bg-[#3D5AFE] text-white font-medium px-4 py-2 rounded-md shadow hover:bg-blue-700 transition">
+                  Write a Review
+                </button>
+                <button className="bg-white border text-black font-medium px-4 py-2 rounded-md shadow hover:bg-gray-100 transition">
+                  See all Reviews
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Most Helpful Review */}
+          <div className="border-t pt-10 space-y-4">
+            <h3 className="text-2xl font-bold text-gray-900">Most helpful review</h3>
+
+            <div className="flex justify-between text-sm text-gray-600">
+              <div className="text-yellow-400 text-2xl">★★★★★</div>
+              <div className="text-right text-sm text-gray-800">
+                <p className="font-semibold">John Smith</p>
+                <p className="text-gray-500 text-xs">July 24, 2025</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-700 max-w-4xl">
+              I just wanted to thank you for your excellent service! Your platform made finding the perfect internship (or intern) quick and easy.
+              The matches were spot-on, and the support was fantastic. Highly recommend your services—keep up the great work!
+            </p>
+
+            <div className="flex justify-between items-center mt-6 text-sm">
+              <span className="text-gray-800 font-semibold">51 reviews</span>
+              <div className="flex items-center gap-2 text-gray-600">
+                <span>Sort by:</span>
+                <select className="bg-white border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                  <option>Most Relevant</option>
+                  <option>Newest</option>
+                  <option>Highest Rated</option>
+                </select>
+              </div>
+            </div>
+          </div>
+                </div>
+         </section>
+   </div>
   );
 }
