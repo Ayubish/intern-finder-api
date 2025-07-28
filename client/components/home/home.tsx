@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import NavBar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Briefcase, CheckCircle, Globe2, ShieldCheck } from "lucide-react";
 
@@ -35,10 +34,9 @@ export default function HomePage() {
 
   return (
     <div>
-      <NavBar />
 
       {/* Hero Section */}
-      <section className="flex flex-col-reverse md:flex-row items-center justify-between px-8 md:px-20 py-16 gap-10">
+      <section className="flex flex-col-reverse md:flex-row items-center justify-between px-8 md:px-20  gap-10">
         {/* Left Text Block */}
         <div className="md:w-1/2 space-y-6">
           <h1 className="text-4xl font-bold leading-tight">
