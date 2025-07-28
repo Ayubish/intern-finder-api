@@ -57,9 +57,15 @@ export default function CompanySignUp() {
 
     return (
         <div className="flex min-h-screen">
+            <div className="w-1/2 max-md:hidden min-h-full flex flex-col justify-center items-center bg-primary/10 text-center pt-10">
+                <p className="py-5 text-4xl font-semibold">
+                    Find your dream internship with top companies worldwide. Launch your career today!
+                </p>
+                <Image src="/meeting.png" alt="meeting" width={500} height={500} className="w-lg px-10 object-contain" />
+            </div>
             <div className="w-1/2 max-md:w-full items-center p-10 min-h-full flex flex-col">
                 <div className="w-full md:max-w-8/10">
-                    <h2 className="text-2xl font-semibold">Sign In to Interno</h2>
+                    <h2 className="text-4xl font-semibold">Welcome back!</h2>
                     <p>Fill out the information to log in to your account</p>
                 </div>
                 <div className="w-full md:max-w-8/10">
@@ -101,12 +107,7 @@ export default function CompanySignUp() {
                 </div>
             </div>
 
-            <div className="w-1/2 max-md:hidden min-h-full flex flex-col justify-center items-center bg-primary/10 text-center pt-10">
-                <p className="py-5 text-4xl font-semibold">
-                    Find your dream internship with top companies worldwide. Launch your career today!
-                </p>
-                <Image src="/meeting.png" alt="meeting" width={500} height={500} className="w-lg px-10 object-contain" />
-            </div>
+
         </div>
     );
 }

@@ -14,6 +14,7 @@ import { User, GraduationCap, Briefcase, CheckCircle, Github, Linkedin, Globe, T
 import { internOnboardingSchema, type InternOnboardingData } from "@/lib/validations"
 
 import { FileUpload } from "@/components/file-upload"
+import { toast } from "sonner"
 
 const countries = [
     "United States",
@@ -154,11 +155,7 @@ export default function InternOnboarding() {
             formData.append("resume", resumeFile)
         }
 
-        console.log("Form submitted:", data)
-        console.log("Profile image:", image)
-        console.log("Resume file:", resumeFile)
-
-        alert("Intern profile created successfully!")
+        toast.success("Intern profile created successfully!")
     }
 
     const renderStep = () => {
