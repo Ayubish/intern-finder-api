@@ -60,6 +60,7 @@ const registerCompany = async (
       if (!fs.existsSync(uploadDir))
         fs.mkdirSync(uploadDir, { recursive: true });
       await fs.promises.writeFile(filePath, resizedBuffer);
+
       const baseUrl = `${req.protocol}://${req.get("host")}`; 
       imgUrl = `${baseUrl}/logo/${filename}`;
     }
@@ -98,9 +99,12 @@ const registerCompany = async (
       }),
     ]);
 
+     
+
     const companyDb = await prisma.company.findMany({
       where: { userId: req.user.id },
     });
+
     res.json(companyDb);
   } catch (error) {
     next(error);
@@ -108,7 +112,6 @@ const registerCompany = async (
 };
 
 export default registerCompany
-
 
 
 // import { Express, NextFunction, Request, Response } from "express";

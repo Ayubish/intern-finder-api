@@ -28,9 +28,11 @@ export default function NavBar() {
                 <div className="flex">
                     <Input name="search" placeholder="Search" />
                     <div className="flex gap-3">
-                        <Button variant="link">
-                            Log In
-                        </Button>
+                        <Link href="/signin">
+                            <Button variant="link">
+                                Log In
+                            </Button>
+                        </Link>
                         <Link href="/signup">
                             <Button>
                                 Sign Up

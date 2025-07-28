@@ -8,8 +8,10 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signUp } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
-// 1. Define Zod schema
 const formSchema = z
     .object({
         email: z.string().email({ message: "Invalid email address" }),
@@ -24,6 +26,7 @@ const formSchema = z
 type FormData = z.infer<typeof formSchema>;
 
 export default function CompanySignUp() {
+    const router = useRouter();
     const {
         register,
         handleSubmit,
@@ -32,9 +35,20 @@ export default function CompanySignUp() {
         resolver: zodResolver(formSchema),
     });
 
-    const onSubmit = (data: FormData) => {
-        console.log("Form Submitted:", data);
-        // handle registration logic here
+    const onSubmit = async (data: FormData) => {
+
+        await signUp.email({ ...data, name: data.email, role: "company" }, {
+            onSuccess: () => {
+                toast.success("Account created successfully!")
+                router.push("/onboarding/company")
+            },
+            onError: (ctx) => {
+                toast.error("Sign Up failed, Please try again!")
+
+            }
+        })
+
+
     };
 
     return (
@@ -78,7 +92,7 @@ export default function CompanySignUp() {
 
                     <p className="text-center py-3">
                         Already have an account?{" "}
-                        <Link href="/login" className="text-primary underline">
+                        <Link href="/signin" className="text-primary underline">
                             Log In
                         </Link>
                     </p>

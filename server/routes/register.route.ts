@@ -10,7 +10,11 @@ const registerRouter = Router();
 
 
 registerRouter.post('/company',upload.single("image"), registerCompany);
-registerRouter.post('/intern',upload.single("image"), registerIntern);
+registerRouter.post('/intern',upload.fields(
+  [
+  { name: "image", maxCount: 1 },
+  { name: "resume", maxCount: 1 }
+]), registerIntern);
 
 
 
