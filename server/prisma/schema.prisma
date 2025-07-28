@@ -114,19 +114,25 @@ model Intern {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+// "name", "dateOfBirth", "gender", "country"
   name                String
-  industry            String
+  dateOfBirth         String
   image               String?
-  description         String
-  size                String
-  year                Int
-  contactEmail        String  
-  phone               String?
-  website             String?
-  headQuarter         String
-  additionalLocations String?
-  values              String?
+  gender              String
+  country             String
+
+  degree              String
+  university          String?
+  major               String?
+  yearOfGraduation    String?
+  GPA                 Decimal?
+
+  about               String
+  resume              String?
+  linkdin             String?
+  github              String?
+  portfolio           String?
 
   @@map("intern")
 }
+
