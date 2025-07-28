@@ -1,121 +1,10 @@
-// import { Express, NextFunction, Request, Response } from "express";
-// import { CustomError } from "../utils/customError";
-// import { log } from "console";
-// import { prisma } from "../lib/prisma";
-// import { fromNodeHeaders } from "better-auth/node";
-// import { auth } from "../lib/auth";
-// import { string } from "better-auth/*";
-// import sharp from "sharp";
-// import path from "path";
-// import fs from "fs";
-
-// const internController = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const {
-//       name,
-//       industry,
-//       description,
-//       size,
-//       year,
-//       contactEmail,
-//       headQuarter,
-//       phone,
-//       website,
-//       additionalLocations,
-//       values,
-//     } = req.body;
-//     if (
-//       !name ||
-//       !industry ||
-//       !description ||
-//       !size ||
-//       !year ||
-//       !contactEmail ||
-//       !headQuarter
-//     ) {
-//       throw new CustomError("All fields are required", 400);
-//     }
-
-//     const isUserRegistered = await prisma.user.findUnique({
-//       where: { id: req.user.id },
-//     });
-//     if (isUserRegistered?.completed == true)
-//       throw new CustomError("the user registered ", 400);
-
-//     let imgUrl;
-//     if (req.file) {
-//       const resizedBuffer = await sharp(req.file?.buffer).toBuffer();
-
-//       const cleanFileName = req.file?.originalname.replace(/\s+/g, "-");
-//       let filename = cleanFileName?.split(".")[0];
-//       filename = `${filename}-${Date.now()}.jpeg`;
-//       const uploadDir = path.join(__dirname, "../../public/profile");
-//       const filePath = path.join(uploadDir, filename);
-
-//       if (!fs.existsSync(uploadDir))
-//         fs.mkdirSync(uploadDir, { recursive: true });
-//       await fs.promises.writeFile(filePath, resizedBuffer);
-//       const baseUrl = `${req.protocol}://${req.get("host")}`; 
-//       imgUrl = `${baseUrl}/profile/${filename}`;
-//     }
-
-//     console.log(imgUrl,req.file);
-
-//     const internData = {
-//       name,
-//       industry,
-//       description,
-//       size,
-//       year: parseInt(year),
-//       contactEmail,
-//       headQuarter,
-//       phone,
-//       website,
-//       additionalLocations,
-//       values,
-//       image: imgUrl || null,
-//       user: { connect: { id: req.user.id } },
-//     };
-
-//     const userData = {
-//       name,
-//       image: imgUrl || null,
-//       completed: true,
-//     };
-
-//     await prisma.$transaction([
-//       prisma.intern.create({
-//         data: internData,
-//       }),
-//       prisma.user.update({
-//         where: { id: req.user.id },
-//         data: userData,
-//       }),
-//     ]);
-
-//     const internDb = await prisma.intern.findMany({
-//       where: { userId: req.user.id },
-//     });
-//     res.json(internDb);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-// export default internController;
-
-
 import { Express, NextFunction, Request, Response } from "express";
 import { CustomError } from "../utils/customError";
 import { log } from "console";
 import { prisma } from "../lib/prisma";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth";
-import { string } from "better-auth/*";
+
 import sharp from "sharp";
 import path from "path";
 import fs from "fs";
@@ -126,29 +15,38 @@ const registerIntern = async (
   next: NextFunction
 ) => {
   try {
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    const imageFile = files["image"]?.[0];
+    const resumeFile = files["resume"]?.[0];
+    // console.log(imageFile,resumeFile);
+
     const {
       name,
-      industry,
-      description,
-      size,
-      year,
-      contactEmail,
-      headQuarter,
-      phone,
-      website,
-      additionalLocations,
-      values,
+      dateOfBirth,
+      gender,
+      country,
+      degree,
+      university,
+      major,
+      yearOfGraduation,
+      GPA,
+      about,
+      linkdin,
+      github,
+      portfolio,
     } = req.body;
-    if (
-      !name ||
-      !industry ||
-      !description ||
-      !size ||
-      !year ||
-      !contactEmail ||
-      !headQuarter
-    ) {
+    if (!name || !dateOfBirth || !gender || !country || !degree || !about) {
       throw new CustomError("All fields are required", 400);
+    }
+
+    if (degree != "No Degree") {
+      if (!university || !GPA || !major || !yearOfGraduation) {
+        throw new CustomError(
+          "GPA, university, major and graduation year are required for this education type",
+          400
+        );
+      }
     }
 
     const isUserRegistered = await prisma.user.findUnique({
@@ -157,64 +55,125 @@ const registerIntern = async (
     if (isUserRegistered?.completed == true)
       throw new CustomError("the user registered ", 400);
 
-    let imgUrl;
-    if (req.file) {
-      const resizedBuffer = await sharp(req.file?.buffer).toBuffer();
+ 
+    let imgUrl, resumeUrl;
+    if (imageFile) {
+      const resizedBuffer = await sharp(imageFile.buffer).toBuffer();
 
-      const cleanFileName = req.file?.originalname.replace(/\s+/g, "-");
+      const cleanFileName = imageFile?.originalname.replace(/\s+/g, "-");
+      const extension = path.extname(cleanFileName);
       let filename = cleanFileName?.split(".")[0];
-      filename = `${filename}-${Date.now()}.jpeg`;
+      filename = `${filename}-${Date.now()}${extension}`;
       const uploadDir = path.join(__dirname, "../../public/profile");
       const filePath = path.join(uploadDir, filename);
 
       if (!fs.existsSync(uploadDir))
         fs.mkdirSync(uploadDir, { recursive: true });
       await fs.promises.writeFile(filePath, resizedBuffer);
-      const baseUrl = `${req.protocol}://${req.get("host")}`; 
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
       imgUrl = `${baseUrl}/profile/${filename}`;
     }
-    
-    // console.log(imgUrl,req.file);
+
+    if (resumeFile) {
+      // const resizedBuffer = await sharp(req.file?.buffer).toBuffer();
+
+      const cleanFileName = resumeFile?.originalname.replace(/\s+/g, "-");
+      const extension = path.extname(cleanFileName);
+      let filename = cleanFileName?.split(".")[0];
+      filename = `${filename}-${Date.now()}${extension}`;
+      const uploadDir = path.join(__dirname, "../../public/resume");
+      const filePath = path.join(uploadDir, filename);
+
+      if (!fs.existsSync(uploadDir))
+        fs.mkdirSync(uploadDir, { recursive: true });
+      // await fs.promises.writeFile(filePath, resizedBuffer);
+      await fs.promises.writeFile(filePath, resumeFile?.buffer);
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      resumeUrl = `${baseUrl}/profile/${filename}`;
+    }
 
     const internData = {
       name,
-      industry,
-      description,
-      size,
-      year: parseInt(year),
-      contactEmail,
-      headQuarter,
-      phone,
-      website,
-      additionalLocations,
-      values,
+      dateOfBirth,
+      gender,
+      country,
+      degree,
+      university,
+      major,
+      yearOfGraduation,
+      GPA: parseFloat(GPA),
+      portfolio,
+      linkdin,
+      github,
+      about,
       image: imgUrl || null,
+      resume: resumeUrl || null,
       user: { connect: { id: req.user.id } },
     };
+    
 
     const userData = {
-      name,
-      image: imgUrl || null,
-      completed: true,
-    };
+  name,
+  image: imgUrl || null,
+  completed: true,
+};
 
-    await prisma.$transaction([
-      prisma.intern.create({
-        data: internData,
-      }),
-      prisma.user.update({
-        where: { id: req.user.id },
-        data: userData,
-      }),
-    ]);
+const db = await prisma.$transaction([
+  prisma.intern.create({
+    data: internData,
+  }),
+  prisma.user.update({
+    where: { id: req.user.id },
+    data: userData,
+  }),
+]);
 
-    const internDb = await prisma.intern.findMany({
-      where: { userId: req.user.id },
-    });
-    res.json(internDb);
+
+    res.json(db);
+
+   
   } catch (error) {
     next(error);
   }
 };
 
 export default registerIntern;
+
+// let resumeUrl;
+// if (req.file?.resume) {
+//   const resizedBuffer = await sharp(req.file?.buffer).toBuffer();
+
+//   const cleanFileName = req.file?.originalname.replace(/\s+/g, "-");
+//   const extension = path.extname(cleanFileName);
+//   let filename = cleanFileName?.split(".")[0];
+//   filename = `${filename}-${Date.now()}${extension}`;
+//   const uploadDir = path.join(__dirname, "../../public/resume");
+//   const filePath = path.join(uploadDir, filename);
+
+//   if (!fs.existsSync(uploadDir))
+//     fs.mkdirSync(uploadDir, { recursive: true });
+//   await fs.promises.writeFile(filePath, resizedBuffer);
+//   const baseUrl = `${req.protocol}://${req.get("host")}`;
+//   resumeUrl = `${baseUrl}/profile/${filename}`;
+// }
+
+// const userData = {
+//   name,
+//   image: imgUrl || null,
+//   completed: true,
+// };
+
+// await prisma.$transaction([
+//   prisma.intern.create({
+//     data: internData,
+//   }),
+//   prisma.user.update({
+//     where: { id: req.user.id },
+//     data: userData,
+//   }),
+// ]);
+
+// const internDb = await prisma.intern.findMany({
+//   where: { userId: req.user.id },
+// });
+// res.json(internDb);
