@@ -111,6 +111,8 @@ const registerCompany = async (
   }
 };
 
+
+
 export default registerCompany
 
 
