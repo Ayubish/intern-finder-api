@@ -452,95 +452,95 @@ export default function HomePage() {
       </section>
 {/* Background Image Section (with Glass Form) */}
         <section
-          className="relative min-h-screen w-full bg-cover bg-center bg-no-repeat "
-          style={{ backgroundImage: "url('/support-bg.png')" }}
-        >
-          {/* Centered Glass Form */}
-          <div className="flex items-center justify-center min-h-screen px-4">
-            <div className="bg-white/30 backdrop-blur-md border border-white/20 rounded-xl p-8 w-full max-w-md shadow-md">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-1">
-                Need <span className="text-[#3D5AFE]">Support?</span>
-              </h2>
-              <p className="text-sm text-gray-800 mb-6">
-                Contact us if you need further assistance.
-              </p>
+                className="relative min-h-screen w-full bg-cover bg-center bg-no-repeat "
+                style={{ backgroundImage: "url('/support-bg.png')" }}
+              >
+                {/* Centered Glass Form */}
+                <div className="flex items-center justify-center min-h-screen px-4">
+                  <div className="bg-white/30 backdrop-blur-md border border-white/20 rounded-xl p-8 w-full max-w-md shadow-md">
+                    <h2 className="text-2xl font-semibold text-gray-900 mb-1">
+                      Need <span className="text-[#3D5AFE]">Support?</span>
+                    </h2>
+                    <p className="text-sm text-gray-800 mb-6">
+                      Contact us if you need further assistance.
+                    </p>
 
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-xs text-gray-800 mb-1">Name</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white/60 backdrop-blur focus:outline-none focus:ring-2 focus:ring-[#3D5AFE]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-800 mb-1">Email</label>
-                  <input
-                    type="email"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white/60 backdrop-blur focus:outline-none focus:ring-2 focus:ring-[#3D5AFE]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-800 mb-1">
-                    Please enter the detail of your request.
-                  </label>
-                  <textarea
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white/60 backdrop-blur focus:outline-none focus:ring-2 focus:ring-[#3D5AFE]"
-                  ></textarea>
-                </div>
+                    <form className="space-y-4">
+                      <div>
+                        <label className="block text-xs text-gray-800 mb-1">Name</label>
+                        <input
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white/60 backdrop-blur focus:outline-none focus:ring-2 focus:ring-[#3D5AFE]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-800 mb-1">Email</label>
+                        <input
+                          type="email"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white/60 backdrop-blur focus:outline-none focus:ring-2 focus:ring-[#3D5AFE]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-800 mb-1">
+                          Please enter the detail of your request.
+                        </label>
+                        <textarea
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white/60 backdrop-blur focus:outline-none focus:ring-2 focus:ring-[#3D5AFE]"
+                        ></textarea>
+                      </div>
 
-                {/* Submit Button aligned right */}
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="bg-[#3D5AFE] hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-md shadow transition"
-                  >
-                    Submit
-                  </button>
+                      {/* Submit Button  */}
+                      <div className="flex justify-end">
+                        <button
+                          type="submit"
+                          className="bg-[#3D5AFE] hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-md shadow transition"
+                        >
+                          Submit
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
-              </form>
-            </div>
+          </section>
+
+              {/* Footer */}
+      <footer className="bg-white text-base text-gray-700 flex flex-col md:flex-row items-center justify-between border-t gap-6">
+        {/* Left: Logo  */}
+        <div className="ml-50 flex flex-col items-center md:items-start">
+          <Image
+            src="/Interno.png"
+            alt="Interno"
+            width={180}
+            height={180}
+            className="object-contain"
+          />
           </div>
-        </section>
+        {/* Vertical Divider */}
+      <div className="hidden md:block h-20 border-l border-black my-4"  />
 
-        {/* Footer */}
-<footer className="bg-white text-base text-gray-700 flex flex-col md:flex-row items-center justify-between border-t gap-6">
-  {/* Left: Logo  */}
-  <div className="ml-50 flex flex-col items-center md:items-start">
-    <Image
-      src="/Interno.png"
-      alt="Interno"
-      width={180}
-      height={180}
-      className="object-contain"
-    />
-     </div>
-  {/* Vertical Divider */}
-<div className="hidden md:block h-20 border-l border-black my-4 mx-2"  />
+        {/* Center: Links & Legal */}
+        <div className="flex flex-col items-center gap-3 text-[17px] text-gray-700 text-center">
+          <div className="flex gap-6 font-medium text-lg ">
+            <a href="#" className="hover:underline">About</a>
+            <a href="#" className="hover:underline">Terms</a>
+            <a href="#" className="hover:underline">Privacy</a>
+            <a href="#" className="hover:underline">Support</a>
+          </div>
+          <span className="text-gray-500 text-base font-normal">
+            © 2025 Interno. All rights reserved.
+          </span>
+        </div>
 
-  {/* Center: Links & Legal */}
-  <div className="flex flex-col items-center gap-3 text-[17px] text-gray-700 text-center">
-    <div className="flex gap-6 font-medium text-lg ">
-      <a href="#" className="hover:underline">About</a>
-      <a href="#" className="hover:underline">Terms</a>
-      <a href="#" className="hover:underline">Privacy</a>
-      <a href="#" className="hover:underline">Support</a>
-    </div>
-    <span className="text-gray-500 text-base font-normal">
-      © 2025 Interno. All rights reserved.
-    </span>
-  </div>
+        {/* Right: Social Icons */}
+        <div className="flex gap-6">
+          <a href="#"><img src="/linkedin-icon.png" alt="LinkedIn" className="w-14 h-14" /></a>
+          <a href="#"><img src="/facebook-icon.png" alt="Facebook" className="w-14 h-14" /></a>
+          <a href="#"><img src="/telegram-icon.png" alt="Telegram" className="w-14 h-14" /></a>
+          <a href="#"><img src="/whatsapp-icon.png" alt="WhatsApp" className="w-14 h-14" /></a>
+        </div>
+      </footer>
 
-  {/* Right: Social Icons (slightly bigger) */}
-  <div className="flex gap-6">
-    <a href="#"><img src="/linkedin-icon.png" alt="LinkedIn" className="w-14 h-14" /></a>
-    <a href="#"><img src="/facebook-icon.png" alt="Facebook" className="w-14 h-14" /></a>
-    <a href="#"><img src="/telegram-icon.png" alt="Telegram" className="w-14 h-14" /></a>
-    <a href="#"><img src="/whatsapp-icon.png" alt="WhatsApp" className="w-14 h-14" /></a>
-  </div>
-</footer>
-
-   </div>
+        </div>
   );
 }
