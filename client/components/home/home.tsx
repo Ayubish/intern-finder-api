@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Briefcase, CheckCircle, Globe2, ShieldCheck } from "lucide-react";
+import { Briefcase, CheckCircle, Globe2, ShieldCheck,MapPin, LayoutTemplate } from "lucide-react";
 
 export default function HomePage() {
   const features = [
@@ -333,8 +333,214 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-                </div>
+          </div>
          </section>
-   </div>
+
+    {/* Internships Section */}
+      <section className="px-6 md:px-20 py-16 bg-white">
+        <div className="max-w-7xl mx-auto">
+          {/* Centered Title */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
+              <span className="text-[#3D5AFE] drop-shadow">Internships</span>{' '}
+              You May Be Interested In
+            </h2>
+            <p className="text-gray-600 max-w-3xl mx-auto text-sm">
+              Discover exciting internship opportunities tailored to your skills and career goals! Browse handpicked roles from top companies and startups across various industries. Whether you’re looking for remote, hybrid, or on-site positions, find the perfect match to kickstart your professional journey.
+            </p>
+          </div>
+
+          {/* Grid */}
+          <div className="grid md:grid-cols-2 gap-8">
+            {[
+              {
+                title: 'Digital Marketer',
+                company: 'AliExpress',
+                location: 'Beijing ,Chine',
+                category: 'Marketing',
+                type: 'Internship',
+                time: '1 Hr Ago',
+                logo: '/aliexpress.png',
+                favorited: false,
+              },
+              {
+                title: 'Graphic Designer',
+                company: 'Golden Age Tech',
+                location: 'Remote',
+                category: 'Graphics',
+                type: 'Internship',
+                time: '3 Hr Ago',
+                logo: '/graphic.png',
+                favorited: true,
+              },
+              {
+                title: 'Web Developer',
+                company: 'Google',
+                location: 'Remote',
+                category: 'Development',
+                type: 'Internship',
+                time: '15 Hr Ago',
+                logo: '/google.png',
+                favorited: true,
+              },
+              {
+                title: 'Data Entry',
+                company: 'X',
+                location: 'New York, USA',
+                category: 'Data Entry',
+                type: 'Internship',
+                time: '1 Hr Ago',
+                logo: '/x.png',
+                favorited: false,
+              },
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="bg-[#f9f9f9] rounded-2xl shadow-md px-6 py-5 flex items-center justify-between gap-4"
+              >
+                {/* Logo */}
+                <img src={item.logo} alt={item.company} className="w-14 h-14 object-contain" />
+
+                {/* Info */}
+                <div className="flex-1 space-y-1">
+                  <h3 className="font-semibold text-gray-900 text-sm">{item.title}</h3>
+                  <p className="text-sm text-gray-600">
+                    Via{' '}
+                    <span className="text-blue-600 hover:underline hover:cursor-pointer no-underline">
+                      {item.company}
+                    </span>
+                  </p>
+                  <div className="text-sm text-gray-700 space-y-1 mt-2">
+                    <div className="flex items-center gap-1">
+                      <span><MapPin className="w-4 h-4 text-gray-600" /></span>
+                      <span>{item.location}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span><LayoutTemplate className="w-4 h-4 text-gray-600" /></span>
+                      <span>{item.category}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>💼</span>
+                      <span>{item.type}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Apply + Heart */}
+                <div className="flex flex-col items-center gap-2">
+                  <button className="bg-[#3D5AFE] hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-md shadow-lg">
+                    Apply
+                  </button>
+                  <div className="flex flex-col items-center gap-1">
+                    <button>
+                      {item.favorited ? (
+                        <span className="text-[#3D5AFE] text-xl">💙</span>
+                      ) : (
+                        <span className="text-gray-400 text-xl">🤍</span>
+                      )}
+                    </button>
+                    <div className="text-xs text-gray-600 flex items-center gap-1">
+                      <span>⏱️</span>
+                      <span>{item.time}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+{/* Background Image Section (with Glass Form) */}
+        <section
+                className="relative min-h-screen w-full bg-cover bg-center bg-no-repeat "
+                style={{ backgroundImage: "url('/support-bg.png')" }}
+              >
+                {/* Centered Glass Form */}
+                <div className="flex items-center justify-center min-h-screen px-4">
+                  <div className="bg-white/30 backdrop-blur-md border border-white/20 rounded-xl p-8 w-full max-w-md shadow-md">
+                    <h2 className="text-2xl font-semibold text-gray-900 mb-1">
+                      Need <span className="text-[#3D5AFE]">Support?</span>
+                    </h2>
+                    <p className="text-sm text-gray-800 mb-6">
+                      Contact us if you need further assistance.
+                    </p>
+
+                    <form className="space-y-4">
+                      <div>
+                        <label className="block text-xs text-gray-800 mb-1">Name</label>
+                        <input
+                          type="text"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white/60 backdrop-blur focus:outline-none focus:ring-2 focus:ring-[#3D5AFE]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-800 mb-1">Email</label>
+                        <input
+                          type="email"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white/60 backdrop-blur focus:outline-none focus:ring-2 focus:ring-[#3D5AFE]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-800 mb-1">
+                          Please enter the detail of your request.
+                        </label>
+                        <textarea
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white/60 backdrop-blur focus:outline-none focus:ring-2 focus:ring-[#3D5AFE]"
+                        ></textarea>
+                      </div>
+
+                      {/* Submit Button  */}
+                      <div className="flex justify-end">
+                        <button
+                          type="submit"
+                          className="bg-[#3D5AFE] hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-md shadow transition"
+                        >
+                          Submit
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+          </section>
+
+              {/* Footer */}
+      <footer className="bg-white text-base text-gray-700 flex flex-col md:flex-row items-center justify-between border-t gap-6">
+        {/* Left: Logo  */}
+        <div className="ml-50 flex flex-col items-center md:items-start">
+          <Image
+            src="/Interno.png"
+            alt="Interno"
+            width={180}
+            height={180}
+            className="object-contain"
+          />
+          </div>
+        {/* Vertical Divider */}
+      <div className="hidden md:block h-20 border-l border-black my-4"  />
+
+        {/* Center: Links & Legal */}
+        <div className="flex flex-col items-center gap-3 text-[17px] text-gray-700 text-center">
+          <div className="flex gap-6 font-medium text-lg ">
+            <a href="#" className="hover:underline">About</a>
+            <a href="#" className="hover:underline">Terms</a>
+            <a href="#" className="hover:underline">Privacy</a>
+            <a href="#" className="hover:underline">Support</a>
+          </div>
+          <span className="text-gray-500 text-base font-normal">
+            © 2025 Interno. All rights reserved.
+          </span>
+        </div>
+
+        {/* Right: Social Icons */}
+        <div className="flex gap-6">
+          <a href="#"><img src="/linkedin-icon.png" alt="LinkedIn" className="w-14 h-14" /></a>
+          <a href="#"><img src="/facebook-icon.png" alt="Facebook" className="w-14 h-14" /></a>
+          <a href="#"><img src="/telegram-icon.png" alt="Telegram" className="w-14 h-14" /></a>
+          <a href="#"><img src="/whatsapp-icon.png" alt="WhatsApp" className="w-14 h-14" /></a>
+        </div>
+      </footer>
+
+        </div>
   );
 }
