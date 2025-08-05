@@ -1,11 +1,10 @@
-
 import { Express, NextFunction, Request, Response } from "express";
 import { CustomError } from "../utils/customError";
 import { log } from "console";
 import { prisma } from "../lib/prisma";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth";
-import { string } from "better-auth/*";
+import { email, string } from "better-auth/*";
 import sharp from "sharp";
 import path from "path";
 import fs from "fs";
@@ -29,16 +28,46 @@ const registerCompany = async (
       additionalLocations,
       values,
     } = req.body;
-    if (
-      !name ||
-      !industry ||
-      !description ||
-      !size ||
-      !year ||
-      !contactEmail ||
-      !headQuarter
-    ) {
-      throw new CustomError("All fields are required", 400);
+    const mandatoryData = [
+      name,
+      industry,
+      description,
+      size,
+      year,
+      contactEmail,
+      headQuarter,
+    ];
+
+    // if (
+    //   !name ||
+    //   !industry ||
+    //   !description ||
+    //   !size ||
+    //   !year ||
+    //   !contactEmail ||
+    //   !headQuarter
+    // ) {
+    //   throw new CustomError("All fields are required", 400);
+    // }
+    const requiredFields = {
+      name,
+      industry,
+      description,
+      size,
+      year,
+      contactEmail,
+      headQuarter,
+    };
+
+    const missingFields = Object.entries(requiredFields)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key);
+
+    if (missingFields.length > 0) {
+      throw new CustomError(
+        `Missing required field(s): ${missingFields.join(", ")}`,
+        400
+      );
     }
 
     const isUserRegistered = await prisma.user.findUnique({
@@ -61,10 +90,10 @@ const registerCompany = async (
         fs.mkdirSync(uploadDir, { recursive: true });
       await fs.promises.writeFile(filePath, resizedBuffer);
 
-      const baseUrl = `${req.protocol}://${req.get("host")}`; 
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
       imgUrl = `${baseUrl}/logo/${filename}`;
     }
-    
+
     // console.log(imgUrl,req.file);
 
     const companyData = {
@@ -99,8 +128,6 @@ const registerCompany = async (
       }),
     ]);
 
-     
-
     const companyDb = await prisma.company.findMany({
       where: { userId: req.user.id },
     });
@@ -110,11 +137,125 @@ const registerCompany = async (
     next(error);
   }
 };
+const postJob = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const {
+      title,
+      description,
+      deadline,
+      startDate,
+      duration,
+      location,
+      commitment,
+      isPaid,
+      qualifications,
+      requirements,
+      whoCanApply,
+      educationLevel,
+      perks,
+    } = req.body;
+    const mandatoryData = [
+      title,
+      description,
+      deadline,
+      startDate,
+      duration,
+      location,
+      commitment,
+      isPaid,
+      qualifications,
+      requirements,
+      whoCanApply,
+      educationLevel,
+      perks,
+    ];
 
+    const requiredFields = {
+      title,
+      description,
+      deadline,
+      startDate,
+      duration,
+      location,
+      commitment,
+      isPaid,
+      qualifications,
+      requirements,
+      whoCanApply,
+      educationLevel,
+      perks,
+    };
 
+    const missingFields = Object.entries(requiredFields)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key);
 
-export default registerCompany
+    if (missingFields.length > 0) {
+      throw new CustomError(
+        `Missing required field(s): ${missingFields.join(", ")}`,
+        400
+      );
+    }
 
+    const jobPostData = {
+      title,
+      description,
+      deadline,
+      startDate,
+      duration,
+      location,
+      commitment,
+      isPaid,
+      qualifications,
+      requirements,
+      whoCanApply,
+      educationLevel,
+      perks,
+    };
+
+    const jobPost = await prisma.post.create({
+      data: jobPostData,
+    });
+    //   prisma.user.update({
+    //     where: { id: req.user.id },
+    //     data: userData,
+    //   }),
+    // ]);
+
+    // const companyDb = await prisma.company.findMany({
+    //   where: { userId: req.user.id },
+    // });
+
+    res.json(jobPost);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getTotalPosts = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    
+    const jobPost = await prisma.post.findMany();
+    //   prisma.user.update({
+    //     where: { id: req.user.id },
+    //     data: userData,
+    //   }),
+    // ]);
+
+    // const companyDb = await prisma.company.findMany({
+    //   where: { userId: req.user.id },
+    // });
+      const totalpost = jobPost.length;
+   res.json({
+  jobPost: jobPost,
+  totalpost: totalpost
+});
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { registerCompany, postJob ,getTotalPosts};
 
 // import { Express, NextFunction, Request, Response } from "express";
 // import { CustomError } from "../utils/customError";
@@ -239,4 +380,4 @@ export default registerCompany
 // };
 
 // export default companyController;
-
+//

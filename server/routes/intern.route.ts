@@ -9,7 +9,7 @@ import registerIntern from "../controllers/intern.controller";
 const internRouter = Router();
 
 
-internRouter.post('/intern',upload.fields(
+internRouter.post('/register',upload.fields(
   [
   { name: "image", maxCount: 1 },
   { name: "resume", maxCount: 1 }

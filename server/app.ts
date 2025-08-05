@@ -19,12 +19,13 @@ app.all("/api/auth/{*any}", toNodeHandler(auth));
 app.use(express.json());
 
 //   company api
-app.use("/api/register",verifyUser,companyRouter)
+app.use("/api/company", verifyUser, companyRouter)
+
 
 
 
 //intern api
-app.use("/api/register",verifyUser,internRouter)
+app.use("/api/intern", verifyUser, internRouter)
 
 
 app.use(errorHandler);
