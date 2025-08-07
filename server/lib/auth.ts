@@ -15,6 +15,7 @@ export const auth = betterAuth({
       role: {
         type: "string",
       },
+      completed: { type: "boolean", input: false },
     },
   },
   trustedOrigins: ["http://localhost:3000"],

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Users, FileText, UserCheck, TrendingUp, Clock } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const stats = [
     {
@@ -135,11 +136,10 @@ export default function Dashboard() {
                                 {recentApplications.map((application) => (
                                     <TableRow key={application.name}>
                                         <TableCell className="flex items-center gap-2">
-                                            <img
-                                                src={application.avatar || "/placeholder.svg"}
-                                                alt={application.name}
-                                                className="h-8 w-8 rounded-full"
-                                            />
+                                            <Avatar>
+                                                <AvatarImage src={application.avatar} />
+                                                <AvatarFallback>{application.name[1]}</AvatarFallback>
+                                            </Avatar>
                                             <span className="font-medium">{application.name}</span>
                                         </TableCell>
                                         <TableCell>{application.position}</TableCell>

@@ -90,7 +90,7 @@ export default function CompanyOnboarding() {
             formData.append("image", image)
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/company`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/register/company`, {
             method: "POST",
             body: formData,
             credentials: "include",
@@ -152,39 +152,44 @@ export default function CompanyOnboarding() {
                     </p>
                 </div>
 
-                <div className="mb-8">
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium">
-                            Step {currentStep} of {totalSteps}
-                        </span>
-                        <span className="text-sm text-gray-500">{Math.round(progress)}% complete</span>
-                    </div>
-                    <Progress value={progress} className="h-2" />
-                </div>
 
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <Card>
-                        <CardContent className="px-4">{renderStep()}</CardContent>
-                    </Card>
+                <Card>
+                    <CardContent className="px-4">
+                        <div className="mb-2">
+                            <div className="flex justify-center mb-2">
+                                {Array.from({ length: totalSteps }).map((_, idx) => (
+                                    <div key={idx} className={`bg-gray-300 w-12 h-[10px] rounded-4xl mx-2`}>
+                                        <p className={`${currentStep > idx ? 'w-12' : 'w-0'} h-[10px] bg-primary rounded-4xl transition-all duration-300`}></p>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-center text-sm">
+                                Step {currentStep}/{totalSteps}
+                            </p>
+                        </div>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            {renderStep()}
 
-                    <div className="flex justify-between mt-8">
-                        <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
-                            Previous
-                        </Button>
+                            <div className="flex justify-between mt-8">
+                                <Button type="button" variant="outline" onClick={prevStep} disabled={currentStep === 1}>
+                                    Previous
+                                </Button>
 
-                        {currentStep === totalSteps && (
-                            <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700">
-                                {isSubmitting ? "Submitting" : "Complete Profile"}
-                            </Button>
-                        )} {currentStep < totalSteps && (
-                            <Button type="button" onClick={nextStep} className="bg-blue-600 hover:bg-blue-700">
-                                Next
+                                {currentStep === totalSteps && (
+                                    <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700">
+                                        {isSubmitting ? "Submitting" : "Complete Profile"}
+                                    </Button>
+                                )} {currentStep < totalSteps && (
+                                    <Button type="button" onClick={nextStep} className="bg-blue-600 hover:bg-blue-700">
+                                        Next
 
-                                <ArrowRight />
-                            </Button>
-                        )}
-                    </div>
-                </form>
+                                        <ArrowRight />
+                                    </Button>
+                                )}
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     )

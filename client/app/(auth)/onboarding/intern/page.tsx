@@ -15,6 +15,7 @@ import { internOnboardingSchema, type InternOnboardingData } from "@/lib/validat
 
 import { FileUpload } from "@/components/file-upload"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 const countries = [
     "United States",
@@ -68,6 +69,7 @@ export default function InternOnboarding() {
     const [currentStep, setCurrentStep] = useState(1)
     const [image, setimage] = useState<File | null>(null)
     const [resumeFile, setResumeFile] = useState<File | null>(null)
+    const router = useRouter()
 
     const totalSteps = 4
     const progress = (currentStep / totalSteps) * 100
@@ -82,12 +84,12 @@ export default function InternOnboarding() {
             degree: "",
             university: "",
             major: "",
-            graduationYear: "",
+            yearOfGraduation: "",
             gpa: "",
             about: "",
             linkedin: "",
             github: "",
-            portfolioUrl: "",
+            portfolio: "",
         },
     })
 
@@ -113,7 +115,7 @@ export default function InternOnboarding() {
                 fieldsToValidate = ["degree"]
                 // Only validate education fields if degree is not "No Degree"
                 if (watchedValues.degree && watchedValues.degree !== "No Degree") {
-                    fieldsToValidate.push("university", "major", "graduationYear")
+                    fieldsToValidate.push("university", "major", "yearOfGraduation")
                 }
                 break
             case 3:
@@ -138,7 +140,7 @@ export default function InternOnboarding() {
         setCurrentStep((prev) => Math.max(prev - 1, 1))
     }
 
-    const onSubmit = (data: InternOnboardingData) => {
+    const onSubmit = async (data: InternOnboardingData) => {
         const formData = new FormData()
 
         Object.entries(data).forEach(([key, value]) => {
@@ -154,6 +156,21 @@ export default function InternOnboarding() {
         if (resumeFile) {
             formData.append("resume", resumeFile)
         }
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/register/intern`, {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+        })
+
+        if (!res.ok) {
+            const error = await res.text()
+            toast.error(`Failed to create company profile: ${error}`)
+            return
+        }
+
+        toast.success("Company profile created successfully!")
+        router.push("/c")
 
         toast.success("Intern profile created successfully!")
     }
@@ -284,15 +301,15 @@ export default function InternOnboarding() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="graduationYear">Graduation Year *</Label>
+                                        <Label htmlFor="yearOfGraduation">Graduation Year *</Label>
                                         <Input
-                                            id="graduationYear"
+                                            id="yearOfGraduation"
                                             type="date"
-                                            {...register("graduationYear")}
-                                            className={errors.graduationYear ? "border-red-500" : ""}
+                                            {...register("yearOfGraduation")}
+                                            className={errors.yearOfGraduation ? "border-red-500" : ""}
                                         />
-                                        {errors.graduationYear && (
-                                            <p className="text-sm text-red-500 mt-1">{errors.graduationYear.message}</p>
+                                        {errors.yearOfGraduation && (
+                                            <p className="text-sm text-red-500 mt-1">{errors.yearOfGraduation.message}</p>
                                         )}
                                     </div>
 
@@ -382,20 +399,19 @@ export default function InternOnboarding() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="portfolioUrl" className="flex items-center gap-2">
+                                        <Label htmlFor="portfolio" className="flex items-center gap-2">
                                             <Globe className="h-4 w-4 text-green-600" />
                                             Portfolio/Website
                                         </Label>
                                         <Input
-                                            id="portfolioUrl"
+                                            id="portfolio"
                                             type="url"
-                                            {...register("portfolioUrl")}
+                                            {...register("portfolio")}
                                             placeholder="https://johndoe.dev"
-                                            className={errors.portfolioUrl ? "border-red-500" : ""}
+                                            className={errors.portfolio ? "border-red-500" : ""}
                                         />
-                                        {errors.portfolioUrl && <p className="text-sm text-red-500 mt-1">{errors.portfolioUrl.message}</p>}
+                                        {errors.portfolio && <p className="text-sm text-red-500 mt-1">{errors.portfolio.message}</p>}
                                     </div>
-
 
                                 </div>
                             </div>
@@ -461,9 +477,9 @@ export default function InternOnboarding() {
                                                     <strong>Major:</strong> {watchedValues.major}
                                                 </div>
                                             )}
-                                            {watchedValues.graduationYear && (
+                                            {watchedValues.yearOfGraduation && (
                                                 <div>
-                                                    <strong>Graduation Year:</strong> {new Date(watchedValues.graduationYear).getFullYear()}
+                                                    <strong>Graduation Year:</strong> {new Date(watchedValues.yearOfGraduation).getFullYear()}
                                                 </div>
                                             )}
                                             {watchedValues.gpa && (
@@ -524,11 +540,11 @@ export default function InternOnboarding() {
                                                     </a>
                                                 </div>
                                             )}
-                                            {watchedValues.portfolioUrl && (
+                                            {watchedValues.portfolio && (
                                                 <div className="flex items-center gap-2">
                                                     <Globe className="h-4 w-4 text-green-600" />
                                                     <a
-                                                        href={watchedValues.portfolioUrl}
+                                                        href={watchedValues.portfolio}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-blue-600 hover:underline text-sm"

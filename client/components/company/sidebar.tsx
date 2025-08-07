@@ -1,7 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import { Building2, Users, FileText, UserCheck, BarChart3, Settings, Plus, Search } from "lucide-react"
+import { Building2, Users, FileText, UserCheck, BarChart3, Settings, Plus, Search, UserCog } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -47,6 +47,11 @@ const navigation = [
         title: "Analytics",
         url: "/c/dashboard/analytics",
         icon: BarChart3,
+    },
+    {
+        title: "Profile",
+        url: "/c/dashboard/profile",
+        icon: UserCog,
     },
     {
         title: "Settings",

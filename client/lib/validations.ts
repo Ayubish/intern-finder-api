@@ -41,7 +41,7 @@ export const internOnboardingSchema = z
     degree: z.string().min(1, "Please select an option"),
     university: z.string().optional(),
     major: z.string().optional(),
-    graduationYear: z.string().optional(),
+    yearOfGraduation: z.string().optional(),
     gpa: z.string().optional(),
 
     // Experience
@@ -59,7 +59,7 @@ export const internOnboardingSchema = z
       .url("Please enter a valid GitHub URL")
       .optional()
       .or(z.literal("")),
-    portfolioUrl: z
+    portfolio: z
       .string()
       .url("Please enter a valid portfolio URL")
       .optional()
@@ -67,9 +67,9 @@ export const internOnboardingSchema = z
   })
   .refine(
     (data) => {
-      // If degree is not "No Degree", then university, major, and graduationYear are required
+      // If degree is not "No Degree", then university, major, and yearOfGraduation are required
       if (data.degree !== "No Degree") {
-        return data.university && data.major && data.graduationYear;
+        return data.university && data.major && data.yearOfGraduation;
       }
       return true;
     },

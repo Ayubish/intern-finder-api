@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useAuth } from "@/contexts/auth-context";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { ProfileDropDown } from "./profile-dropdown";
 
 export default function NavBar() {
     const { user } = useAuth();
@@ -32,13 +32,7 @@ export default function NavBar() {
                 <div className="flex gap-10">
                     <Input name="search" placeholder="Search" />
                     {user ? (
-                        <Link href="/c/dashboard" className="flex items-center gap-3 bg-blue-500/10 text-blue-500 rounded-md px-5">
-                            <Avatar>
-                                <AvatarImage src={user.image} alt={user.name} />
-                                <AvatarFallback>{user.name[0]}</AvatarFallback>
-                            </Avatar>
-                            Dashboard
-                        </Link>
+                        <ProfileDropDown user={user} />
                     ) : (
 
                         <div className="flex gap-3">
