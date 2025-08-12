@@ -106,12 +106,7 @@ export function CompanySidebar({ ...props }: React.ComponentProps<typeof Sidebar
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-                <div className="p-4">
-                    <Button className="w-full">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Quick Action
-                    </Button>
-                </div>
+                Nothing here
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>
