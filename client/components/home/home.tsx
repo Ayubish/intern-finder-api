@@ -42,11 +42,11 @@ export default function HomePage() {
           <h1 className="text-4xl font-bold leading-tight">
             Find Your Perfect <span className="text-blue-600">Internship</span> Match!
           </h1>
-          <p className="text-lg text-gray-700">
+          <p className="text-4xl font-bold leading-tight">
             Connecting ambitious students with top companies for meaningful internship{" "}
             <span className="text-blue-600">opportunities</span>.
           </p>
-          <div className="flex gap-4">
+          <div className="flex gap-30 mt-20 ">
             <Button>Browse Internships</Button>
             <Button variant="outline">Post an Internship</Button>
           </div>
@@ -297,9 +297,11 @@ export default function HomePage() {
                 <button className="bg-[#3D5AFE] text-white font-medium px-4 py-2 rounded-md shadow hover:bg-blue-700 transition">
                   Write a Review
                 </button>
+                
                 <button className="bg-white border text-black font-medium px-4 py-2 rounded-md shadow hover:bg-gray-100 transition">
-                  See all Reviews
+                        See all Reviews
                 </button>
+              
               </div>
             </div>
           </div>
