@@ -30,7 +30,7 @@ export default function CompanySignUp() {
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm<FormData>({
         resolver: zodResolver(formSchema),
     });
@@ -55,7 +55,7 @@ export default function CompanySignUp() {
         <div className="flex min-h-screen">
             <div className="w-1/2 max-md:w-full items-center p-10 min-h-full flex flex-col">
                 <div className="w-full md:max-w-8/10">
-                    <h2 className="text-2xl font-semibold">Sign Up to Interno</h2>
+                    <h2 className="text-3xl font-bold">Create an account</h2>
                     <p>Fill out the information to create an account</p>
                 </div>
                 <div className="w-full md:max-w-8/10">
@@ -76,8 +76,12 @@ export default function CompanySignUp() {
                             {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>}
                         </div>
 
+                        <div className="flex gap-3 items-center text-gray-400">
+                            By creating an account you agree to our privacy policy and terms.
+                        </div>
+
                         <Button type="submit" className="w-full shadow-sm py-1 text-base">
-                            Sign Up
+                            {isSubmitting ? "Signning Up..." : "Sign Up"}
                         </Button>
                     </form>
 
@@ -86,7 +90,7 @@ export default function CompanySignUp() {
                         <p className="bg-white w-fit px-5">or</p>
                     </div>
 
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" disabled={isSubmitting} className="w-full">
                         Continue with Google
                     </Button>
 

@@ -4,13 +4,13 @@ import type React from "react"
 
 import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import { Upload, X } from "lucide-react"
+import { toast } from "sonner"
 
 interface FileUploadProps {
     onFileChange: (file: File | null) => void
     accept?: string
-    maxSize?: number // in MB
+    maxSize?: number
     currentFile?: File | null
 }
 
@@ -21,7 +21,7 @@ export function FileUpload({ onFileChange, accept = "image/*", maxSize = 5, curr
 
     const handleFile = (file: File) => {
         if (file.size > maxSize * 1024 * 1024) {
-            alert(`File size must be less than ${maxSize}MB`)
+            toast.error(`File size must be less than ${maxSize}MB`)
             return
         }
 
