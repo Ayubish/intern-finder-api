@@ -381,3 +381,5 @@ export { registerCompany, postJob ,getTotalPosts};
 
 // export default companyController;
 //
+
+
