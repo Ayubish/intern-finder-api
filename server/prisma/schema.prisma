@@ -71,6 +71,7 @@ model Account {
   @@map("account")
 }
 
+
 model Verification {
   id        String    @id
   createdAt DateTime?
@@ -84,9 +85,9 @@ model Verification {
 }
 
 model Company {
-  id        String    @id @default(uuid())
-  createdAt DateTime?
-  updatedAt DateTime?
+  id        String     @id @default(uuid())
+  createdAt DateTime?  @default(now())
+  updatedAt DateTime?  @updatedAt
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -109,8 +110,8 @@ model Company {
 
 model Intern {
   id        String    @id @default(uuid())
-  createdAt DateTime?
-  updatedAt DateTime?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -135,4 +136,24 @@ model Intern {
 
   @@map("intern")
 }
+model Post {
+  id        String    @id @default(uuid())
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
+  title                    String?
+  description              String?
+  deadline                 DateTime?
+  startDate                DateTime?
+  duration                 String?
+  location                 String?
+  commitment               String? 
+  isPaid                  String? 
+  qualifications  String?
+  requirements             String?
+  whoCanApply             String?
+  educationLevel           String?
+  perks                    String?
+
+  @@map("post")
+}
