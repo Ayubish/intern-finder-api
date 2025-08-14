@@ -11,6 +11,7 @@ const errorHandler_1 = require("./middlewares/errorHandler");
 const auth_middleware_1 = require("./middlewares/auth.middleware");
 const company_route_1 = require("./routes/company.route");
 const intern_route_1 = require("./routes/intern.route");
+const job_route_1 = require("./routes/job.route");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: "http://localhost:3000",
@@ -18,8 +19,16 @@ app.use((0, cors_1.default)({
 }));
 app.all("/api/auth/{*any}", (0, node_1.toNodeHandler)(auth_1.auth));
 app.use(express_1.default.json());
+<<<<<<< HEAD
+//   company api
+app.use("/api/company", auth_middleware_1.verifyUser, company_route_1.companyRouter);
+//intern api
+app.use("/api/intern", auth_middleware_1.verifyUser, intern_route_1.internRouter);
+app.use('/api', auth_middleware_1.verifyUser, job_route_1.job);
+=======
 
 app.use("/api/register", auth_middleware_1.verifyUser, register_route_1.registerRouter);
 
+>>>>>>> c2e73e3ba7b39bad581a54b114db995942a8c7bd
 app.use(errorHandler_1.errorHandler);
 exports.default = app;

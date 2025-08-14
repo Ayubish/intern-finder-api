@@ -6,6 +6,8 @@ import { errorHandler } from "./middlewares/errorHandler";
 import { verifyUser } from "./middlewares/auth.middleware";
 import { companyRouter } from "./routes/company.route";
 import { internRouter } from "./routes/intern.route";
+import { job } from "./routes/job.route";
+
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.use("/api/company", verifyUser, companyRouter)
 
 //intern api
 app.use("/api/intern", verifyUser, internRouter)
+
+app.use('/api',verifyUser,job)
 
 
 app.use(errorHandler);

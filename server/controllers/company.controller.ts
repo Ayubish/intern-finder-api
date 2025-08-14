@@ -137,125 +137,125 @@ const registerCompany = async (
     next(error);
   }
 };
-const postJob = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const {
-      title,
-      description,
-      deadline,
-      startDate,
-      duration,
-      location,
-      commitment,
-      isPaid,
-      qualifications,
-      requirements,
-      whoCanApply,
-      educationLevel,
-      perks,
-    } = req.body;
-    const mandatoryData = [
-      title,
-      description,
-      deadline,
-      startDate,
-      duration,
-      location,
-      commitment,
-      isPaid,
-      qualifications,
-      requirements,
-      whoCanApply,
-      educationLevel,
-      perks,
-    ];
+// const postJob = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const {
+//       title,
+//       description,
+//       deadline,
+//       startDate,
+//       duration,
+//       location,
+//       commitment,
+//       isPaid,
+//       qualifications,
+//       requirements,
+//       whoCanApply,
+//       educationLevel,
+//       perks,
+//     } = req.body;
+//     const mandatoryData = [
+//       title,
+//       description,
+//       deadline,
+//       startDate,
+//       duration,
+//       location,
+//       commitment,
+//       isPaid,
+//       qualifications,
+//       requirements,
+//       whoCanApply,
+//       educationLevel,
+//       perks,
+//     ];
 
-    const requiredFields = {
-      title,
-      description,
-      deadline,
-      startDate,
-      duration,
-      location,
-      commitment,
-      isPaid,
-      qualifications,
-      requirements,
-      whoCanApply,
-      educationLevel,
-      perks,
-    };
+//     const requiredFields = {
+//       title,
+//       description,
+//       deadline,
+//       startDate,
+//       duration,
+//       location,
+//       commitment,
+//       isPaid,
+//       qualifications,
+//       requirements,
+//       whoCanApply,
+//       educationLevel,
+//       perks,
+//     };
 
-    const missingFields = Object.entries(requiredFields)
-      .filter(([_, value]) => !value)
-      .map(([key]) => key);
+//     const missingFields = Object.entries(requiredFields)
+//       .filter(([_, value]) => !value)
+//       .map(([key]) => key);
 
-    if (missingFields.length > 0) {
-      throw new CustomError(
-        `Missing required field(s): ${missingFields.join(", ")}`,
-        400
-      );
-    }
+//     if (missingFields.length > 0) {
+//       throw new CustomError(
+//         `Missing required field(s): ${missingFields.join(", ")}`,
+//         400
+//       );
+//     }
 
-    const jobPostData = {
-      title,
-      description,
-      deadline,
-      startDate,
-      duration,
-      location,
-      commitment,
-      isPaid,
-      qualifications,
-      requirements,
-      whoCanApply,
-      educationLevel,
-      perks,
-    };
+//     const jobPostData = {
+//       title,
+//       description,
+//       deadline,
+//       startDate,
+//       duration,
+//       location,
+//       commitment,
+//       isPaid,
+//       qualifications,
+//       requirements,
+//       whoCanApply,
+//       educationLevel,
+//       perks,
+//     };
 
-    const jobPost = await prisma.post.create({
-      data: jobPostData,
-    });
-    //   prisma.user.update({
-    //     where: { id: req.user.id },
-    //     data: userData,
-    //   }),
-    // ]);
+//     const jobPost = await prisma.post.create({
+//       data: jobPostData,
+//     });
+//     //   prisma.user.update({
+//     //     where: { id: req.user.id },
+//     //     data: userData,
+//     //   }),
+//     // ]);
 
-    // const companyDb = await prisma.company.findMany({
-    //   where: { userId: req.user.id },
-    // });
+//     // const companyDb = await prisma.company.findMany({
+//     //   where: { userId: req.user.id },
+//     // });
 
-    res.json(jobPost);
-  } catch (error) {
-    next(error);
-  }
-};
+//     res.json(jobPost);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
-const getTotalPosts = async (req: Request, res: Response, next: NextFunction) => {
-  try {
+// const getTotalPosts = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
     
-    const jobPost = await prisma.post.findMany();
-    //   prisma.user.update({
-    //     where: { id: req.user.id },
-    //     data: userData,
-    //   }),
-    // ]);
+//     const jobPost = await prisma.post.findMany();
+//     //   prisma.user.update({
+//     //     where: { id: req.user.id },
+//     //     data: userData,
+//     //   }),
+//     // ]);
 
-    // const companyDb = await prisma.company.findMany({
-    //   where: { userId: req.user.id },
-    // });
-      const totalpost = jobPost.length;
-   res.json({
-  jobPost: jobPost,
-  totalpost: totalpost
-});
-  } catch (error) {
-    next(error);
-  }
-};
+//     // const companyDb = await prisma.company.findMany({
+//     //   where: { userId: req.user.id },
+//     // });
+//       const totalpost = jobPost.length;
+//    res.json({
+//   jobPost: jobPost,
+//   totalpost: totalpost
+// });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
-export { registerCompany, postJob ,getTotalPosts};
+export { registerCompany};
 
 // import { Express, NextFunction, Request, Response } from "express";
 // import { CustomError } from "../utils/customError";
