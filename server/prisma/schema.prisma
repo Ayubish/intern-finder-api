@@ -136,24 +136,33 @@ model Intern {
 
   @@map("intern")
 }
-model Post {
-  id        String    @id @default(uuid())
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
 
-  title                    String?
-  description              String?
-  deadline                 DateTime?
-  startDate                DateTime?
-  duration                 String?
-  location                 String?
-  commitment               String? 
-  isPaid                  String? 
-  qualifications  String?
-  requirements             String?
-  whoCanApply             String?
-  educationLevel           String?
-  perks                    String?
+enum JobType {
+  REMOTE
+  ONSITE
+  HYBRID
+}
 
-  @@map("post")
+model Job {
+  id               String   @id @default(cuid())
+
+  title            String
+  type             JobType
+  location         String
+  salary           String
+  duration         String
+  startDate        DateTime?
+  deadline         DateTime?
+
+  description      String
+  responsibilities String
+
+  requirements     String
+  benefits         String
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([title])
+  @@index([deadline])
 }
