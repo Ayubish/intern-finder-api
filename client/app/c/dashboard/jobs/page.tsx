@@ -99,10 +99,6 @@ export default function JobListings() {
                     <p className="text-muted-foreground">Manage your company's job postings and track applications.</p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline">
-                        <BarChart3 className="mr-2 h-4 w-4" />
-                        Analytics
-                    </Button>
                     <Link href="/c/dashboard/jobs/new">
                         <Button>
                             <Plus className="mr-2 h-4 w-4" />
@@ -164,9 +160,12 @@ export default function JobListings() {
                 </TabsList>
 
                 <TabsContent value="all-jobs" className="space-y-4">
-                    {/* Search and Filters */}
+
+                    {/* Job Listings Table */}
                     <Card>
-                        <CardContent className="pt-6">
+                        <CardHeader>
+                            {/* <CardTitle>Job Listings</CardTitle>
+                            <CardDescription>{filteredJobs.length} jobs found</CardDescription> */}
                             <div className="flex flex-col gap-4 md:flex-row md:items-center">
                                 <div className="relative flex-1">
                                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -192,33 +191,25 @@ export default function JobListings() {
                                     </Select>
                                     <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                                         <SelectTrigger className="w-[150px]">
-                                            <SelectValue placeholder="Department" />
+                                            <SelectValue placeholder="Type" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="all">All Departments</SelectItem>
-                                            <SelectItem value="Engineering">Engineering</SelectItem>
-                                            <SelectItem value="Design">Design</SelectItem>
-                                            <SelectItem value="Product">Product</SelectItem>
-                                            <SelectItem value="Analytics">Analytics</SelectItem>
+                                            <SelectItem value="all">All Types</SelectItem>
+                                            <SelectItem value="Engineering">On-site</SelectItem>
+                                            <SelectItem value="Hybrid">Hybrid</SelectItem>
+                                            <SelectItem value="Remote">Remote</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Job Listings Table */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Job Listings</CardTitle>
                             <CardDescription>{filteredJobs.length} jobs found</CardDescription>
+
                         </CardHeader>
                         <CardContent>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Job Details</TableHead>
-                                        <TableHead>Department</TableHead>
+                                        <TableHead>Title</TableHead>
                                         <TableHead>Location</TableHead>
                                         <TableHead>Status</TableHead>
                                         <TableHead>Applications</TableHead>
@@ -234,31 +225,18 @@ export default function JobListings() {
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-2">
                                                         <div className="font-medium">{job.title}</div>
-                                                        {job.urgent && (
-                                                            <Badge variant="destructive" className="text-xs">
-                                                                Urgent
-                                                            </Badge>
-                                                        )}
                                                     </div>
                                                     <div className="flex items-center text-sm text-muted-foreground">
                                                         <DollarSign className="mr-1 h-3 w-3" />
                                                         {job.salary}
                                                     </div>
-                                                    <div className="text-xs text-muted-foreground">{job.type}</div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline">{job.department}</Badge>
-                                            </TableCell>
+
                                             <TableCell>
                                                 <div className="flex items-center">
                                                     <MapPin className="mr-1 h-3 w-3" />
                                                     <span className="text-sm">{job.location}</span>
-                                                    {job.remote && (
-                                                        <Badge variant="secondary" className="ml-2 text-xs">
-                                                            Remote
-                                                        </Badge>
-                                                    )}
                                                 </div>
                                             </TableCell>
                                             <TableCell>
