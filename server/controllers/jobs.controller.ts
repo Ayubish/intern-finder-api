@@ -5,9 +5,7 @@ import { prisma } from "../lib/prisma";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth";
 
-
 const postJob = async (req: Request, res: Response, next: NextFunction) => {
- 
   try {
     const {
       title,
@@ -54,8 +52,8 @@ const postJob = async (req: Request, res: Response, next: NextFunction) => {
       location,
       salary,
       duration,
-      startDate,
-      deadline,
+      startDate: new Date(startDate),
+      deadline: new Date(deadline),
       description,
       responsibilities,
       requirements,
@@ -73,20 +71,14 @@ const postJob = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-
-const getTotalPosts = async (req: Request, res: Response, next: NextFunction) => {
+const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    
-    const jobPost = await prisma.job.findMany();
-    
-      const totalpost = jobPost.length;
-   res.json({
-  jobPost: jobPost,
-  totalpost: totalpost
-});
+    const posts = await prisma.job.findMany();
+
+    res.json({ posts });
   } catch (error) {
     next(error);
   }
 };
 
-export { postJob ,getTotalPosts};
+export { postJob, getAllPosts };

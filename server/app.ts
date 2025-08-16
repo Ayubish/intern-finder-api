@@ -29,7 +29,7 @@ app.use("/api/company", verifyUser, companyRouter)
 //intern api
 app.use("/api/intern", verifyUser, internRouter)
 
-app.use('/api',verifyUser,job)
+app.use('/api/jobs',verifyUser,job)
 
 
 app.use(errorHandler);

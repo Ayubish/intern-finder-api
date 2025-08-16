@@ -1,18 +1,12 @@
-import { Router } from 'express';
+import { Router } from "express";
 import upload from "../config/multer";
 
 import registerIntern from "../controllers/intern.controller";
-import { getTotalPosts, postJob } from "../controllers/jobs.controller";
-
-
+import { getAllPosts, postJob } from "../controllers/jobs.controller";
 
 const job = Router();
 
+job.get("/", getAllPosts);
+job.post("/create", upload.none(), postJob);
 
-job.post('/internship', postJob);
-job.get('/internships', getTotalPosts);
-
-
-
-
-export {job}
+export { job };
