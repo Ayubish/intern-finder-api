@@ -90,7 +90,7 @@ export default function CompanyOnboarding() {
             formData.append("image", image)
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/register/company`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/company/register`, {
             method: "POST",
             body: formData,
             credentials: "include",

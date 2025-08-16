@@ -40,7 +40,7 @@ export default function NewJobPage() {
         register,
         handleSubmit,
         control,
-        formState: { errors },
+        formState: { errors, isSubmitting },
         setValue,
         watch,
         trigger,
@@ -79,10 +79,28 @@ export default function NewJobPage() {
 
     const handlePrev = () => setActiveTab((curr) => Math.max(1, curr - 1))
 
-    const onSubmit = (data: JobForm) => {
+    const onSubmit = async (data: JobForm) => {
+        const formData = new FormData()
+
+        Object.entries(data).forEach(([key, value]) => {
+            if (value !== undefined && value !== "") {
+                formData.append(key, value.toString())
+            }
+        })
         // Remove unpaid from the final data
-        const { unpaid, ...rest } = data
-        console.log("Form Data:", rest)
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/jobs/create`, {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+        })
+
+        if (!res.ok) {
+            const error = await res.text()
+            toast.error(`Failed to create a job post: ${error}`)
+            return
+        }
+        console.log("Form Data:", data)
         toast.success("Internship listing created successfully!")
         router.push("/c/dashboard/jobs")
     }
@@ -292,7 +310,7 @@ export default function NewJobPage() {
                                         Next
                                     </Button>
                                 ) : (
-                                    <Button type="submit">Submit</Button>
+                                    <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Submitting" : "Submit"}</Button>
                                 )}
                             </div>
                         </Card>
