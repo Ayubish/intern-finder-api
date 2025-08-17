@@ -6,6 +6,7 @@ import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth";
 
 const postJob = async (req: Request, res: Response, next: NextFunction) => {
+  const companyId = req.user.companyId;
   try {
     const {
       title,
@@ -47,6 +48,7 @@ const postJob = async (req: Request, res: Response, next: NextFunction) => {
 
     // Prepare data for Prisma
     const jobData = {
+      companyId,
       title,
       type,
       location,
@@ -73,12 +75,27 @@ const postJob = async (req: Request, res: Response, next: NextFunction) => {
 
 const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const posts = await prisma.job.findMany();
+    const jobs = await prisma.job.findMany();
 
-    res.json({ posts });
+    res.json(jobs);
+  } catch (error) {
+    next(error);
+  }
+};
+const getCompanyPosts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const companyId = req.user.companyId;
+  try {
+    const jobs = await prisma.job.findMany({ where: { companyId } });
+
+    const totalViews = jobs.reduce((sum, job) => sum + job.views, 0);
+    res.json({ jobs, totalViews, totalJobs: jobs.length });
   } catch (error) {
     next(error);
   }
 };
 
-export { postJob, getAllPosts };
+export { postJob, getAllPosts, getCompanyPosts };

@@ -8,20 +8,18 @@ import { createContext, useContext, useState, useEffect } from "react"
 interface Job {
     id: string
     title: string
-    department: string
     location: string
     type: string
     status: "Active" | "Draft" | "Closed" | "Paused"
     applicants: number
     views: number
-    posted: string
-    expires?: string
+    created_at: string
+    deadline?: string
     salary: string
     description: string
-    requirements: string[]
-    benefits: string[]
-    remote: boolean
-    urgent: boolean
+    requirements: string
+    benefits: string
+
 }
 
 interface JobsContextType {
@@ -41,38 +39,32 @@ const MOCK_JOBS: Job[] = [
     {
         id: "1",
         title: "Frontend Developer",
-        department: "Engineering",
         location: "Remote",
-        type: "Full-time",
+        type: "remote",
         status: "Active",
         applicants: 12,
         views: 120,
-        posted: "2025-07-01",
-        expires: "2025-08-01",
+        created_at: "2025-07-01",
+        deadline: "2025-08-01",
         salary: "$60,000 - $80,000",
         description: "Work on the UI of our web app.",
-        requirements: ["React", "TypeScript", "CSS"],
-        benefits: ["Remote work", "Health insurance"],
-        remote: true,
-        urgent: false,
+        requirements: "-React/n-TypeScript\n-CSS",
+        benefits: "-Remote work \n-Health insurance",
     },
     {
         id: "2",
         title: "Backend Developer",
-        department: "Engineering",
         location: "Berlin",
-        type: "Part-time",
-        status: "Draft",
+        type: "On-site",
+        status: "Closed",
         applicants: 5,
         views: 45,
-        posted: "2025-07-10",
-        expires: "2025-08-10",
+        created_at: "2025-07-10",
+        deadline: "2025-08-10",
         salary: "$40,000 - $60,000",
         description: "Maintain our backend services.",
-        requirements: ["Node.js", "PostgreSQL"],
-        benefits: ["Flexible hours"],
-        remote: false,
-        urgent: true,
+        requirements: "-React/n-TypeScript\n-CSS",
+        benefits: "-Remote work \n-Health insurance",
     },
 ]
 
