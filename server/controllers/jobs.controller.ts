@@ -4,6 +4,7 @@ import { CustomError } from "../utils/customError";
 import { prisma } from "../lib/prisma";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth";
+import { error } from "console";
 
 const postJob = async (req: Request, res: Response, next: NextFunction) => {
   const companyId = req.user.companyId;
@@ -98,4 +99,25 @@ const getCompanyPosts = async (
   }
 };
 
-export { postJob, getAllPosts, getCompanyPosts };
+const getPostById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const jobId = req.params.id;
+    if (!jobId) {
+      throw new CustomError(`message: the id not found`, 400);
+    }
+    const job = await prisma.job.findUnique({
+      where: {
+        id: jobId,
+      },
+    });
+    if (!job) {
+      throw new CustomError(`No user found with ID ${jobId}`, 404);
+    }
+
+    res.json(job);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { postJob, getAllPosts, getCompanyPosts, getPostById };
