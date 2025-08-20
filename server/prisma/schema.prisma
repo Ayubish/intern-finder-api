@@ -149,7 +149,7 @@ enum JobType {
 
 model Job {
   id               String   @id @default(cuid())
-  companyId        String   @unique
+  companyId        String   
   company          Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   title            String
   type             String
