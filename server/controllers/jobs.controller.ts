@@ -4,7 +4,7 @@ import { CustomError } from "../utils/customError";
 import { prisma } from "../lib/prisma";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth";
-import { error } from "console";
+import { error, log } from "console";
 
 const postJob = async (req: Request, res: Response, next: NextFunction) => {
   const companyId = req.user.companyId;
@@ -120,4 +120,94 @@ const getPostById = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export { postJob, getAllPosts, getCompanyPosts, getPostById };
+// UPDATE JOB POST
+const modifyPost = async (req: Request, res: Response, next: NextFunction) => {
+  const companyId = req.user.companyId;
+  const { id } = req.params;
+
+  try {
+  
+    const {
+       title,
+       type,
+       location,
+       salary,
+       duration,
+       startDate,
+       deadline,
+       description,
+       responsibilities,
+       requirements,
+       benefits,
+    } = req.body;
+
+    // Ensure job exists and belongs to the company
+    const existingJob = await prisma.job.findUnique({
+      where: { id },
+    });
+
+    if (!existingJob) {
+      throw new CustomError("Job not found", 404);
+    }
+    console.log(existingJob);
+    
+    if (existingJob.companyId !== companyId) {
+      throw new CustomError("Unauthorized to update this job", 403);
+    }
+
+    // Prepare data for update (only fields provided)
+    const jobData: any = {
+      ...(title && { title }),
+      ...(type && { type }),
+      ...(location && { location }),
+      ...(salary && { salary }),
+      ...(duration && { duration }),
+      ...(startDate && { startDate: new Date(startDate) }),
+      ...(deadline && { deadline: new Date(deadline) }),
+      ...(description && { description }),
+      ...(responsibilities && { responsibilities }),
+      ...(requirements && { requirements }),
+      ...(benefits && { benefits }),
+    };
+
+    const updatedJob = await prisma.job.update({
+      where: { id },
+      data: jobData,
+    });
+
+    res.json(updatedJob);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// DELETE JOB POST
+const removePost = async (req: Request, res: Response, next: NextFunction) => {
+  const companyId = req.user.companyId;
+  const { id } = req.params;
+
+  try {
+    const existingJob = await prisma.job.findUnique({
+      where: { id },
+    });
+
+    if (!existingJob) {
+      throw new CustomError("Job not found", 404);
+    }
+    if (existingJob.companyId !== companyId) {
+      throw new CustomError("Unauthorized to delete this job", 403);
+    }
+
+    await prisma.job.delete({
+      where: { id },
+    });
+
+    res.json({ message: "Job deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export { postJob, getAllPosts, getCompanyPosts, getPostById,modifyPost , removePost };
