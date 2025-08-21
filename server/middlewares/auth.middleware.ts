@@ -71,3 +71,49 @@ export const verifyCompanyAccess = async (
 
   next();
 };
+export const verifyInternAccess = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
+
+  if (!session || !session.user?.id) {
+    return res
+      .status(401)
+      .json({ error: "Access Denied. Not authenticated." });
+  }
+
+  const userId = session.user.id;
+
+  const intern = await prisma.intern.findUnique({
+    where: {
+      userId: userId,
+    },
+  });
+
+  if (!intern) {
+    return res.status(403).json({
+      error: "Access Denied. No intern profile found for this user.",
+    });
+  }
+
+
+  req.user = session.user;
+  req.user.internId = intern.id;
+
+  
+  const requestedInternId =
+    req.params.internId || req.body.internId || req.query.internId;
+
+  if (requestedInternId && requestedInternId !== intern.id) {
+    return res
+      .status(403)
+      .json({ error: "Access Denied. You do not own this intern profile." });
+  }
+
+  next();
+};
+

@@ -7,6 +7,7 @@ import { verifyUser } from "./middlewares/auth.middleware";
 import { companyRouter } from "./routes/company.route";
 import { internRouter } from "./routes/intern.route";
 import { job } from "./routes/job.route";
+import { application } from "./routes/application.route";
 
 
 const app = express();
@@ -20,17 +21,17 @@ app.use(
 app.all("/api/auth/{*any}", toNodeHandler(auth));
 app.use(express.json());
 
-//   company api
-app.use("/api/company", verifyUser, companyRouter)
-
-
-
-
-//intern api
-app.use("/api/intern", verifyUser, internRouter)
-
+//related to job
 app.use('/api/jobs',verifyUser,job)
 
+
+//related to application
+app.use("/api/jobs/application",verifyUser,application)
+
+
+//multiform registration
+app.use("/api/company", verifyUser, companyRouter)
+app.use("/api/intern", verifyUser, internRouter)
 
 app.use(errorHandler);
 export default app;

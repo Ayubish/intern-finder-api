@@ -1,5 +1,3 @@
-
-
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -16,14 +14,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id
+  id String @id
 
   name          String
   email         String
   emailVerified Boolean
   image         String?
-  role          String @default("intern")
-  completed     Boolean @default(false)
+  role          String   @default("intern")
+  completed     Boolean  @default(false)
   createdAt     DateTime
   updatedAt     DateTime
 
@@ -73,7 +71,6 @@ model Account {
   @@map("account")
 }
 
-
 model Verification {
   id        String    @id
   createdAt DateTime?
@@ -87,9 +84,9 @@ model Verification {
 }
 
 model Company {
-  id        String     @id @default(uuid())
-  createdAt DateTime?  @default(now())
-  updatedAt DateTime?  @updatedAt
+  id        String    @id @default(uuid())
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -100,41 +97,62 @@ model Company {
   description         String
   size                String
   year                Int
-  contactEmail       String  
+  contactEmail        String
   phone               String?
   website             String?
   headQuarter         String
   additionalLocations String?
   values              String?
 
-  jobs Job[]
+  jobs        Job[]
+  application Application[]
+  intern Intern[]
 
   @@map("company")
 }
 
+enum InternStatus {
+  ACTIVE
+  TERMINATED
+}
+
 model Intern {
-  id        String    @id @default(uuid())
+  id String @id @default(uuid())
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-// "name", "dateOfBirth", "gender", "country"
-  name                String
-  dateOfBirth         String
-  image               String?
-  gender              String
-  country             String
 
-  degree              String
-  university          String?
-  major               String?
-  yearOfGraduation    String?
-  GPA                 Decimal?
+  name        String
+  dateOfBirth String
+  image       String?
+  gender      String
+  country     String
 
-  about               String
-  resume              String?
-  linkdin             String?
-  github              String?
-  portfolio           String?
+  degree           String
+  university       String?
+  major            String?
+  yearOfGraduation String?
+  GPA              Decimal?
+
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  jobId    String?
+  job      Job?      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  startDate DateTime?
+  endDate   DateTime?
+  status    InternStatus? @default(ACTIVE)
+
+ 
+  application Application[]
+  interview    Interview[]
+
+  about     String
+  resume    String?
+  linkdin   String?
+  github    String?
+  portfolio String?
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 
@@ -142,32 +160,92 @@ model Intern {
 }
 
 enum JobType {
-  REMOTE
-  ONSITE
-  HYBRID
+  remote
+  onsite
+  hybrid
 }
 
 model Job {
-  id               String   @id @default(cuid())
-  companyId        String   
-  company          Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  title            String
-  type             String
-  location         String
-  salary           String
-  duration         String
-  startDate        DateTime?
-  deadline         DateTime?
+  id        String    @id @default(cuid())
+  companyId String
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  title     String
+  type      JobType
+  location  String
+  salary    String
+  duration  String
+  startDate DateTime?
+  deadline  DateTime?
 
   description      String
   responsibilities String
   requirements     String
   benefits         String
 
-  status           String  @default("Active")
-  views            Int     @default(0)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  application Application[]
+  interview   Interview[]
+  intern Intern[]
+
+  status    String   @default("Active")
+  views     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("job")
 }
+
+
+enum ApplicationStatus {
+  under_review
+  interview
+  accepted
+  rejected
+}
+
+model Application {
+  id    String @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resume      String?
+  coverLetter String
+ 
+  jobId String
+  companyId String
+  internId String
+  status ApplicationStatus? @default(under_review)
+
+
+  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  intern   Intern @relation(fields: [internId], references: [id], onDelete: Cascade)
+
+
+  @@map("application")
+}
+
+
+
+model Interview {
+  id          String        @id @default(cuid())
+  
+  jobId       String
+  job         Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  internId String
+  intern   Intern       @relation(fields: [internId], references: [id], onDelete: Cascade)
+  
+  date        DateTime
+  
+  type        String?
+  
+  location    String?   
+  platform    String?   
+  link        String?   
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("interview")
+}
+

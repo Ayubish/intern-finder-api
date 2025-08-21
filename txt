@@ -1,0 +1,48 @@
+enum InternStatus {
+  ACTIVE
+  TERMINATED
+}
+
+model Intern {
+  id String @id @default(uuid())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String
+  dateOfBirth String
+  image       String?
+  gender      String
+  country     String
+
+  degree           String
+  university       String?
+  major            String?
+  yearOfGraduation String?
+  GPA              Decimal?
+
+  // Internship-specific fields
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  jobId    String?
+  job      Job?      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  startDate DateTime?
+  endDate   DateTime?
+  status    InternStatus? @default(ACTIVE)
+
+  // Relations
+  application Application[]
+  interview    Interview[]
+
+  about     String
+  resume    String?
+  linkdin   String?
+  github    String?
+  portfolio String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@map("intern")
+}
