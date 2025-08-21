@@ -7,7 +7,7 @@ import { auth } from "../lib/auth";
 import { fromNodeHeaders } from "better-auth/node";
 import { CustomError } from "../utils/customError";
 
-export const applicationController = async (
+export const applyForJob = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -24,27 +24,19 @@ export const applicationController = async (
         const userId = session.user.id;
         const { jobId } = req.params;
 
-        // check intern profile
+    
         const intern = await prisma.intern.findUnique({ where: { userId } });
         if (!intern) {
             throw new CustomError("No intern profile found", 403);
         }
 
-        // check job
+       
         const job = await prisma.job.findUnique({ where: { id: jobId } });
         if (!job) {
             throw new CustomError("Job not found", 404);
         }
-        const existingApplication = await prisma.application.findFirst({
-            where: {
-                jobId: job.id,
-                internId: intern.id,
-            },
-        });
+      
 
-        if (existingApplication) {
-            throw new CustomError("You have already applied for this job.", 400);
-        }
         // handle resume file upload
         let resumeUrl;
         if (req.file) {
@@ -88,6 +80,28 @@ export const applicationController = async (
     } catch (error) {
         next(error); 
       
+    }
+};
+export const updateStatus = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+       
+    } catch (error) {
+        next(error); 
+    }
+};
+export const preCheckJob = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+       
+    } catch (error) {
+        next(error); 
     }
 };
 

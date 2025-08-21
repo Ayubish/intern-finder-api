@@ -2,17 +2,17 @@ import { Router } from "express";
 import upload from "../config/multer";
 
 
-import { verifyInternAccess } from "../middlewares/auth.middleware";
-import { applicationController } from "../controllers/application.controller";
+import { verifyCompanyAccess, verifyInternAccess } from "../middlewares/auth.middleware";
+import {applyForJob, preCheckJob, updateStatus } from "../controllers/application.controller";
 
 const application = Router();
 
-application.post("/:jobId/apply",upload.single("resume"),applicationController);
-// application.post("/create");
-// application.get("/detail/:id",);
-// application.post("/");
-// application.put("/update/:id");
-// application.put("/delet/:id");
+application.post("/:jobId/apply",upload.single("resume"),applyForJob);
+// application.put("/update/status",updateStatus);
+// application.get("/checkJob",preCheckJob);
+// application.get("/getCampantApplication",preCheckJob);
+
+
 
 
 

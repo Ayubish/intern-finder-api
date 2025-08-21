@@ -220,7 +220,7 @@ model Application {
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   intern   Intern @relation(fields: [internId], references: [id], onDelete: Cascade)
 
-
+ @@unique([jobId, internId])
   @@map("application")
 }
 
