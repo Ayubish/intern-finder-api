@@ -216,7 +216,7 @@ model Application {
   status ApplicationStatus? @default(under_review)
 
 
-  job   Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  job       Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   intern   Intern @relation(fields: [internId], references: [id], onDelete: Cascade)
 
