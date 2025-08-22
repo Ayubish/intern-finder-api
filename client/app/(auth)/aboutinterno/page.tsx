@@ -120,7 +120,7 @@ export default function AboutPage() {
     </div>
            </section>
 
-      {/* Our Mission */}
+      {/* Our Mission*/}
       <section className="px-6 md:px-16 lg:px-24 py-16">
         <h2 className="text-4xl md:text-5xl font-bold mb-10 text-center">
           Our <span className="text-primary">Mission</span>
