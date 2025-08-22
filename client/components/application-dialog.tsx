@@ -156,7 +156,7 @@ export function ApplicationDialog({ isOpen, onClose, internship }: ApplicationDi
                             <Label htmlFor="coverLetter">Why are you interested in this internship? *</Label>
                             <Textarea
                                 id="coverLetter"
-                                rows={10}
+                                rows={66}
                                 placeholder="Tell us why you're the perfect fit for this internship..."
                                 value={formData.coverLetter}
                                 onChange={(e) => handleInputChange("coverLetter", e.target.value)}

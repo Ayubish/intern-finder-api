@@ -2,6 +2,9 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
+import axios from "axios"
+import { toast } from "sonner"
+import { api } from "@/lib/api"
 
 export interface Company {
     id: string
@@ -44,7 +47,7 @@ interface InternshipsContextType {
     loading: boolean
     searchInternships: (query: string) => Internship[]
     getInternship: (id: string) => Internship | undefined
-    applyToInternship: (internshipId: string, applicationData: any) => Promise<void>
+    applyToInternship: (internshipId: string, applicationData: any) => Promise<any>
 }
 
 const InternshipsContext = createContext<InternshipsContextType | undefined>(undefined)
@@ -165,8 +168,14 @@ export function InternshipsProvider({ children }: { children: React.ReactNode })
     useEffect(() => {
         const loadInternships = async () => {
             setLoading(true)
-            await new Promise((resolve) => setTimeout(resolve, 500))
-            setInternships(sampleInternships)
+            try {
+                const response = await api.get(`/jobs`);
+                setInternships(response.data)
+
+            } catch (error: any) {
+                console.log(error)
+            };
+
             setLoading(false)
         }
 
@@ -190,8 +199,9 @@ export function InternshipsProvider({ children }: { children: React.ReactNode })
     }
 
     const applyToInternship = async (internshipId: string, applicationData: any) => {
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        console.log("Application submitted:", { internshipId, applicationData })
+        return api.post(`/application/${internshipId}/apply`);
+
+        // console.log("Application submitted:", { internshipId, applicationData })
     }
 
     return (
