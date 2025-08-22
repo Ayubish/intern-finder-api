@@ -19,7 +19,7 @@ import { toast } from "sonner"
 const jobSchema = z.object({
     title: z.string().min(2, "Title required"),
     location: z.string().min(2, "Location required"),
-    type: z.enum(["On-site", "Hybrid", "Remote"]),
+    type: z.enum(["onsite", "hybrid", "remote"]),
     salary: z.string().optional(),
     duration: z.string().optional(),
     deadline: z.string().optional(),
@@ -51,7 +51,7 @@ export default function NewJobPage() {
         defaultValues: {
             title: "",
             location: "",
-            type: "On-site",
+            type: "onsite",
             salary: "",
             duration: "",
             deadline: "",
@@ -60,13 +60,13 @@ export default function NewJobPage() {
             responsibilities: "",
             requirements: "",
             benefits: "",
-            unpaid: false, // Restore default for checkbox
+            unpaid: false,
         },
     })
 
 
     // Fields to validate per step
-    const stepFields = [
+    const stepFields: Array<Array<keyof JobForm>> = [
         ["title", "location", "type", "salary", "duration", "deadline", "startDate"], // Step 1
         ["description", "responsibilities"], // Step 2
         ["requirements", "benefits"], // Step 3
@@ -87,7 +87,6 @@ export default function NewJobPage() {
                 formData.append(key, value.toString())
             }
         })
-        // Remove unpaid from the final data
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/jobs/create`, {
             method: "POST",
@@ -159,16 +158,16 @@ export default function NewJobPage() {
                                                 value={watch("type")}
                                                 onValueChange={val => {
                                                     setValue("type", val as JobForm["type"])
-                                                    if (val === "Remote") setValue("location", "remote")
+                                                    if (val === "remote") setValue("location", "remote")
                                                 }}
                                             >
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="On-site" />
+                                                    <SelectValue placeholder="remote" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="On-site">On-site</SelectItem>
-                                                    <SelectItem value="Hybrid">Hybrid</SelectItem>
-                                                    <SelectItem value="Remote">Remote</SelectItem>
+                                                    <SelectItem value="onsite">On-site</SelectItem>
+                                                    <SelectItem value="hybrid">Hybrid</SelectItem>
+                                                    <SelectItem value="remote">Remote</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             {errors.type && <p className="text-xs text-red-500">{errors.type.message}</p>}
@@ -182,8 +181,8 @@ export default function NewJobPage() {
                                                     {...register("location")}
                                                     placeholder="e.g. San Francisco, CA"
                                                     className="pl-8"
-                                                    disabled={watch("type") === "Remote"}
-                                                    value={watch("type") === "Remote" ? "remote" : watch("location")}
+                                                    disabled={watch("type") === "remote"}
+                                                    value={watch("type") === "remote" ? "remote" : watch("location")}
                                                     onChange={e => setValue("location", e.target.value)}
                                                 />
                                             </div>
