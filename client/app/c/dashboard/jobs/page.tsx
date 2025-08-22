@@ -25,8 +25,11 @@ import {
     XCircle,
     Copy,
     BarChart3,
+    Router,
 } from "lucide-react"
 import Link from "next/link"
+import { formatTimestamp } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 const getStatusColor = (status: string) => {
     switch (status) {
@@ -57,13 +60,15 @@ const getStatusIcon = (status: string) => {
 }
 
 export default function JobListings() {
+    const router = useRouter();
     const { jobs, updateJob, deleteJob } = useJobs()
     const [searchTerm, setSearchTerm] = useState("")
     const [statusFilter, setStatusFilter] = useState("all")
     const [typeFilter, setTypeFilter] = useState("all")
     const [selectedJob, setSelectedJob] = useState<any>(null)
+    const jobslist = jobs.jobs
 
-    const filteredJobs = jobs.filter((job) => {
+    const filteredJobs = jobslist.filter((job) => {
         const matchesSearch =
             job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             job.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -75,10 +80,9 @@ export default function JobListings() {
         return matchesSearch && matchesStatus && matchesType
     })
 
-    const activeJobs = jobs.filter((job) => job.status === "Active").length
-    const totalApplicants = jobs.reduce((sum, job) => sum + job.applicants, 0)
-    const totalViews = jobs.reduce((sum, job) => sum + job.views, 0)
-    const draftJobs = jobs.filter((job) => job.status === "Draft").length
+    const activeJobs = jobslist.filter((job) => job.status === "Active").length
+    // const totalApplicants = jobslist.reduce((sum, job) => sum + job.applicants, 0)
+    // const totalViews = jobslist.reduce((sum, job) => sum + job.views, 0)
 
     const handleStatusChange = (jobId: string, newStatus: string) => {
         updateJob(jobId, { status: newStatus as any })
@@ -125,7 +129,7 @@ export default function JobListings() {
                         <Users className="h-4 w-4 text-blue-600" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{totalApplicants}</div>
+                        <div className="text-2xl font-bold">{0}</div>
                         <p className="text-xs text-muted-foreground">Across all job listings</p>
                     </CardContent>
                 </Card>
@@ -135,7 +139,7 @@ export default function JobListings() {
                         <Eye className="h-4 w-4 text-purple-600" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{totalViews.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">{jobs.totalViews}</div>
                         <p className="text-xs text-muted-foreground">Job listing page views</p>
                     </CardContent>
                 </Card>
@@ -145,7 +149,7 @@ export default function JobListings() {
                         <Clock className="h-4 w-4 text-yellow-600" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{draftJobs}</div>
+                        <div className="text-2xl font-bold">{jobs.totalJobs}</div>
                         <p className="text-xs text-muted-foreground">Total jobs published</p>
                     </CardContent>
                 </Card>
@@ -209,7 +213,9 @@ export default function JobListings() {
                         </TableHeader>
                         <TableBody>
                             {filteredJobs.map((job) => (
-                                <TableRow key={job.id} className="cursor-pointer hover:bg-muted/50">
+                                // <Link href={`/c/dashboard/jobs/${job.id}`}>
+                                <TableRow key={job.id} className="cursor-pointer hover:bg-muted/50" onClick={() => router.push(`/c/dashboard/jobs/${job.id}`)}>
+
                                     <TableCell>
                                         <div className="space-y-1">
                                             <div className="flex items-center gap-2">
@@ -239,7 +245,7 @@ export default function JobListings() {
                                     <TableCell>
                                         <div className="flex items-center">
                                             <Users className="mr-1 h-3 w-3" />
-                                            <span className="font-medium">{job.applicants}</span>
+                                            <span className="font-medium">{job.views}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell>
@@ -251,7 +257,7 @@ export default function JobListings() {
                                     <TableCell>
                                         <div className="flex items-center text-sm">
                                             <Calendar className="mr-1 h-3 w-3" />
-                                            {job.created_at}
+                                            {formatTimestamp(job.createdAt)}
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -272,10 +278,6 @@ export default function JobListings() {
                                                         Edit Job
                                                     </DropdownMenuItem>
                                                 </Link>
-                                                <DropdownMenuItem>
-                                                    <Copy className="mr-2 h-4 w-4" />
-                                                    Duplicate
-                                                </DropdownMenuItem>
                                                 <DropdownMenuItem>
                                                     <Users className="mr-2 h-4 w-4" />
                                                     View Applications

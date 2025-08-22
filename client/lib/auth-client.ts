@@ -9,9 +9,9 @@ export const authClient = createAuthClient({
         role: {
           type: "string",
         },
-        completed: {
-          type: "boolean",
-        },
+        // completed: {
+        //   type: "boolean",
+        // },
       },
     }),
   ],

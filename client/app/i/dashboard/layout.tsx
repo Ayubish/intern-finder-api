@@ -9,12 +9,12 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { CompanySidebar } from "@/components/company/sidebar"
 import { JobsProvider } from "@/contexts/jobs-context"
-import { ApplicationsProvider } from "@/contexts/applications-context"
+import { InternProvider } from "@/contexts/intern-context"
+import { InternSidebar } from "./intern-sidebar"
 
 
-export default function DashboardLayout({
+export default function InternDashboardLayout({
     children,
 }: {
     children: React.ReactNode
@@ -23,8 +23,8 @@ export default function DashboardLayout({
         <div>
             <SidebarProvider>
                 <JobsProvider>
-                    <ApplicationsProvider>
-                        <CompanySidebar />
+                    <InternProvider>
+                        <InternSidebar />
                         <SidebarInset>
                             <div className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                                 <div className="flex items-center gap-2 px-4">
@@ -41,7 +41,7 @@ export default function DashboardLayout({
                             </div>
                             <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
                         </SidebarInset>
-                    </ApplicationsProvider>
+                    </InternProvider>
                 </JobsProvider>
             </SidebarProvider>
         </div>

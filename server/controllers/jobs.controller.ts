@@ -76,7 +76,7 @@ const postJob = async (req: Request, res: Response, next: NextFunction) => {
 
 const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const jobs = await prisma.job.findMany();
+    const jobs = await prisma.job.findMany({ include: { company: true } });
 
     res.json(jobs);
   } catch (error) {
