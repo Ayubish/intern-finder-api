@@ -1,7 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import { Building2, Users, FileText, UserCheck, BarChart3, Settings, Plus, Search, UserCog, LayoutDashboard } from "lucide-react"
+import { Building2, Users, FileText, UserCheck, BarChart3, Settings, Plus, Search, UserCog, LayoutDashboard, BookmarkIcon, Briefcase } from "lucide-react"
 
 import {
     Sidebar,
@@ -23,27 +23,22 @@ import { usePathname } from "next/navigation"
 const navigation = [
     {
         title: "Dashboard",
-        url: "/c/dashboard",
+        url: "/i/dashboard",
         icon: LayoutDashboard,
     },
     {
-        title: "Job Listings",
-        url: "/c/dashboard/jobs",
-        icon: FileText,
-    },
-    {
         title: "Applications",
-        url: "/c/dashboard/applications",
-        icon: Users,
+        url: "/i/dashboard/applications",
+        icon: Briefcase,
     },
     {
-        title: "Interns",
-        url: "/c/dashboard/interns",
-        icon: UserCheck,
+        title: "Saved Internships",
+        url: "/i/dashboard/saved",
+        icon: BookmarkIcon,
     },
     {
         title: "Profile",
-        url: "/c/dashboard/profile",
+        url: "/i/dashboard/profile",
         icon: UserCog,
     },
     {
@@ -53,7 +48,7 @@ const navigation = [
     },
 ]
 
-export function CompanySidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function InternSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname();
 
     return (
@@ -69,7 +64,7 @@ export function CompanySidebar({ ...props }: React.ComponentProps<typeof Sidebar
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {navigation.map((item) => {
-                                if (item.url == "/c/dashboard") {
+                                if (item.url == "/i/dashboard") {
                                     return (
                                         <SidebarMenuItem key={item.title}>
                                             <SidebarMenuButton asChild className={`${pathname == item.url && 'bg-primary/10 hover:bg-primary/10 text-primary hover:text-primary'}`}>

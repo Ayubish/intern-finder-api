@@ -7,23 +7,33 @@ import { createContext, useContext, useState, useEffect } from "react"
 
 interface Job {
     id: string
+    companyId: string
     title: string
     location: string
     type: string
     status: "Active" | "Draft" | "Closed" | "Paused"
-    applicants: number
     views: number
-    created_at: string
     deadline?: string
+    duration?: string
+    startDate?: string
     salary: string
     description: string
     requirements: string
     benefits: string
+    responsibilities: string
+    createdAt: string
+    updatedAt: string
 
 }
 
-interface JobsContextType {
+interface JobRes {
     jobs: Job[]
+    totalViews: number
+    totalJobs: number
+}
+
+interface JobsContextType {
+    jobs: JobRes
     addJob: (job: Omit<Job, "id" | "applicants" | "views" | "posted">) => Promise<void>
     updateJob: (id: string, job: Partial<Job>) => Promise<void>
     deleteJob: (id: string) => Promise<void>
@@ -35,41 +45,39 @@ interface JobsContextType {
 const JobsContext = createContext<JobsContextType | undefined>(undefined)
 
 // --- MOCK DATA ---
-const MOCK_JOBS: Job[] = [
-    {
-        id: "1",
-        title: "Frontend Developer",
-        location: "Remote",
-        type: "remote",
-        status: "Active",
-        applicants: 12,
-        views: 120,
-        created_at: "2025-07-01",
-        deadline: "2025-08-01",
-        salary: "$60,000 - $80,000",
-        description: "Work on the UI of our web app.",
-        requirements: "-React/n-TypeScript\n-CSS",
-        benefits: "-Remote work \n-Health insurance",
-    },
-    {
-        id: "2",
-        title: "Backend Developer",
-        location: "Berlin",
-        type: "On-site",
-        status: "Closed",
-        applicants: 5,
-        views: 45,
-        created_at: "2025-07-10",
-        deadline: "2025-08-10",
-        salary: "$40,000 - $60,000",
-        description: "Maintain our backend services.",
-        requirements: "-React/n-TypeScript\n-CSS",
-        benefits: "-Remote work \n-Health insurance",
-    },
-]
+const MOCK_JOBS: JobRes = {
+    "jobs": [
+        {
+            "id": "cmefewvrw0001n5z9hrjnn8g9",
+            "companyId": "37f7345d-296a-4fc4-a438-47ea53937590",
+            "title": "FUllStack Developer",
+            "type": "On-site",
+            "location": "Adama, Ethiopia",
+            "salary": "20000 ETB/Month",
+            "duration": "2 months",
+            "startDate": "2025-03-04T00:00:00.000Z",
+            "deadline": "2025-02-03T00:00:00.000Z",
+            "description": "We need skilled fullstack beast to update and rewrite our entire web infrastructure.",
+            "responsibilities": "-Develop and maintain web applications\r\n-Cooking food for staff\r\n-Suq melalak",
+            "requirements": "-Strong communication skills\r\n-A degree in computer science or related field",
+            "benefits": "-hefty money\r\n-certificate",
+            "status": "Active",
+            "views": 0,
+            "createdAt": "2025-08-17T08:16:44.252Z",
+            "updatedAt": "2025-08-17T08:16:44.252Z"
+        }
+    ],
+    "totalViews": 0,
+    "totalJobs": 1
+}
+
 
 export function JobsProvider({ children }: { children: React.ReactNode }) {
-    const [jobs, setJobs] = useState<Job[]>([])
+    const [jobs, setJobs] = useState<JobRes>({
+        jobs: [],
+        totalViews: 0,
+        totalJobs: 0
+    })
     const [loading, setLoading] = useState(true)
     // const { user } = useAuth()
 
@@ -87,40 +95,40 @@ export function JobsProvider({ children }: { children: React.ReactNode }) {
 
     const addJob = async (jobData: Omit<Job, "id" | "applicants" | "views" | "posted">) => {
         setLoading(true)
-        await new Promise((res) => setTimeout(res, 200))
-        setJobs((prev) => [
-            {
-                ...jobData,
-                id: (Math.random() * 100000).toFixed(0),
-                applicants: 0,
-                views: 0,
-                posted: new Date().toISOString().split("T")[0],
-            },
-            ...prev,
-        ])
+        // await new Promise((res) => setTimeout(res, 200))
+        // setJobs((prev) => [
+        //     {
+        //         ...jobData,
+        //         id: (Math.random() * 100000).toFixed(0),
+        //         applicants: 0,
+        //         views: 0,
+        //         posted: new Date().toISOString().split("T")[0],
+        //     },
+        //     ...prev,
+        // ])
         setLoading(false)
     }
 
     const updateJob = async (id: string, jobData: Partial<Job>) => {
         setLoading(true)
-        await new Promise((res) => setTimeout(res, 200))
-        setJobs((prev) =>
-            prev.map((job) =>
-                job.id === id ? { ...job, ...jobData } : job
-            )
-        )
+        // await new Promise((res) => setTimeout(res, 200))
+        // setJobs((prev) =>
+        //     prev.map((job) =>
+        //         job.id === id ? { ...job, ...jobData } : job
+        //     )
+        // )
         setLoading(false)
     }
 
     const deleteJob = async (id: string) => {
         setLoading(true)
-        await new Promise((res) => setTimeout(res, 200))
-        setJobs((prev) => prev.filter((job) => job.id !== id))
+        // await new Promise((res) => setTimeout(res, 200))
+        // setJobs((prev) => prev.filter((job) => job.id !== id))
         setLoading(false)
     }
 
     const getJob = (id: string) => {
-        return jobs.find((job) => job.id === id)
+        return jobs?.jobs.find((job) => job.id === id)
     }
 
     return (

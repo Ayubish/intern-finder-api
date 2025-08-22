@@ -103,7 +103,7 @@ export default function CompanyOnboarding() {
         }
 
         toast.success("Company profile created successfully!")
-        router.push("/c")
+        router.push("/c/dashboard")
 
     }
 
