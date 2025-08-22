@@ -8,8 +8,12 @@ const node_1 = require("better-auth/node");
 const auth_1 = require("./lib/auth");
 const cors_1 = __importDefault(require("cors"));
 const errorHandler_1 = require("./middlewares/errorHandler");
-const register_route_1 = require("./routes/register.route");
 const auth_middleware_1 = require("./middlewares/auth.middleware");
+const company_route_1 = require("./routes/company.route");
+const intern_route_1 = require("./routes/intern.route");
+const job_route_1 = require("./routes/job.route");
+const application_route_1 = require("./routes/application.route");
+const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: "http://localhost:3000",
@@ -17,8 +21,14 @@ app.use((0, cors_1.default)({
 }));
 app.all("/api/auth/{*any}", (0, node_1.toNodeHandler)(auth_1.auth));
 app.use(express_1.default.json());
-
-app.use("/api/register", auth_middleware_1.verifyUser, register_route_1.registerRouter);
-
+//related to job
+app.use("/api/jobs", job_route_1.job);
+//related to application
+app.use("/api/application", auth_middleware_1.verifyUser, application_route_1.application);
+//multiform registration
+app.use("/api/company", auth_middleware_1.verifyUser, company_route_1.companyRouter);
+app.use("/api/intern", auth_middleware_1.verifyUser, intern_route_1.internRouter);
+// app.use("/static", express.static(path.join(__dirname, "public")));
+app.use("/static", express_1.default.static(path_1.default.join(process.cwd(), "public")));
 app.use(errorHandler_1.errorHandler);
 exports.default = app;

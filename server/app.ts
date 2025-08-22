@@ -3,8 +3,12 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
-import { registerRouter } from "./routes/register.route";
 import { verifyUser } from "./middlewares/auth.middleware";
+import { companyRouter } from "./routes/company.route";
+import { internRouter } from "./routes/intern.route";
+import { job } from "./routes/job.route";
+import { application } from "./routes/application.route";
+import path from "path";
 
 const app = express();
 
@@ -17,9 +21,17 @@ app.use(
 app.all("/api/auth/{*any}", toNodeHandler(auth));
 app.use(express.json());
 
+//related to job
+app.use("/api/jobs", job);
 
-app.use("/api/register",verifyUser,registerRouter)
+//related to application
+app.use("/api/application", verifyUser, application);
 
+//multiform registration
+app.use("/api/company", verifyUser, companyRouter);
+app.use("/api/intern", verifyUser, internRouter);
+// app.use("/static", express.static(path.join(__dirname, "public")));
+app.use("/static", express.static(path.join(process.cwd(), "public")));
 
 app.use(errorHandler);
 export default app;
