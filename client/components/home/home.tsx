@@ -542,7 +542,7 @@ export default function HomePage() {
           <a href="#"><img src="/whatsapp-icon.png" alt="WhatsApp" className="w-14 h-14" /></a>
         </div>
       </footer>
-
-        </div>
+ 
+ </div>
   );
 }

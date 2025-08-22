@@ -20,7 +20,7 @@ export default function NavBar() {
                     <Link href="/listing">
                         Companies
                     </Link>
-                    <Link href="/listing">
+                    <Link href="/aboutinterno">
                         About Interno
                     </Link>
                 </div>
