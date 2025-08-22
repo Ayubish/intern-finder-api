@@ -83,6 +83,7 @@ const getAllPosts = async (req: Request, res: Response, next: NextFunction) => {
     next(error);
   }
 };
+
 const getCompanyPosts = async (
   req: Request,
   res: Response,
@@ -109,6 +110,9 @@ const getPostById = async (req: Request, res: Response, next: NextFunction) => {
       where: {
         id: jobId,
       },
+      include: {
+        company: true,
+      },
     });
     if (!job) {
       throw new CustomError(`No user found with ID ${jobId}`, 404);
@@ -126,19 +130,18 @@ const modifyPost = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
 
   try {
-  
     const {
-       title,
-       type,
-       location,
-       salary,
-       duration,
-       startDate,
-       deadline,
-       description,
-       responsibilities,
-       requirements,
-       benefits,
+      title,
+      type,
+      location,
+      salary,
+      duration,
+      startDate,
+      deadline,
+      description,
+      responsibilities,
+      requirements,
+      benefits,
     } = req.body;
 
     // Ensure job exists and belongs to the company
@@ -150,7 +153,7 @@ const modifyPost = async (req: Request, res: Response, next: NextFunction) => {
       throw new CustomError("Job not found", 404);
     }
     console.log(existingJob);
-    
+
     if (existingJob.companyId !== companyId) {
       throw new CustomError("Unauthorized to update this job", 403);
     }
@@ -181,7 +184,6 @@ const modifyPost = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-
 // DELETE JOB POST
 const removePost = async (req: Request, res: Response, next: NextFunction) => {
   const companyId = req.user.companyId;
@@ -209,5 +211,11 @@ const removePost = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-
-export { postJob, getAllPosts, getCompanyPosts, getPostById,modifyPost , removePost };
+export {
+  postJob,
+  getAllPosts,
+  getCompanyPosts,
+  getPostById,
+  modifyPost,
+  removePost,
+};

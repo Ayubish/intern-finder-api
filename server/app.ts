@@ -8,7 +8,7 @@ import { companyRouter } from "./routes/company.route";
 import { internRouter } from "./routes/intern.route";
 import { job } from "./routes/job.route";
 import { application } from "./routes/application.route";
-
+import path from "path";
 
 const app = express();
 
@@ -22,16 +22,16 @@ app.all("/api/auth/{*any}", toNodeHandler(auth));
 app.use(express.json());
 
 //related to job
-app.use('/api/jobs',verifyUser,job)
-
+app.use("/api/jobs", job);
 
 //related to application
-app.use("/api/jobs/application",verifyUser,application)
-
+app.use("/api/application", verifyUser, application);
 
 //multiform registration
-app.use("/api/company", verifyUser, companyRouter)
-app.use("/api/intern", verifyUser, internRouter)
+app.use("/api/company", verifyUser, companyRouter);
+app.use("/api/intern", verifyUser, internRouter);
+// app.use("/static", express.static(path.join(__dirname, "public")));
+app.use("/static", express.static(path.join(process.cwd(), "public")));
 
 app.use(errorHandler);
 export default app;
