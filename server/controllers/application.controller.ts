@@ -24,18 +24,18 @@ export const applyForJob = async (
         const userId = session.user.id;
         const { jobId } = req.params;
 
-    
+
         const intern = await prisma.intern.findUnique({ where: { userId } });
         if (!intern) {
             throw new CustomError("No intern profile found", 403);
         }
 
-       
+
         const job = await prisma.job.findUnique({ where: { id: jobId } });
         if (!job) {
             throw new CustomError("Job not found", 404);
         }
-      
+
 
         // handle resume file upload
         let resumeUrl;
@@ -62,7 +62,7 @@ export const applyForJob = async (
             throw new CustomError("Cover letter is required", 400);
         }
 
-     
+
         const application = await prisma.application.create({
             data: {
                 resume: resumeUrl,
@@ -78,8 +78,8 @@ export const applyForJob = async (
             application,
         });
     } catch (error) {
-        next(error); 
-      
+        next(error);
+
     }
 };
 export const updateStatus = async (
@@ -88,10 +88,40 @@ export const updateStatus = async (
     next: NextFunction
 ) => {
     try {
-       
+        const { applicationId } = req.params;
+        const { status } = req.body;
+
+
+        const allowedStatuses = ["under_review", "interview", "accepted", "rejected"];
+        if (!status || !allowedStatuses.includes(status)) {
+            throw new CustomError("Invalid application status", 400);
+        }
+
+        const application = await prisma.application.findUnique({
+            where: { id: applicationId },
+            
+        });
+        
+        if (!application) {
+            throw new CustomError("Application not found", 404);
+          }
+
+        const updatedApplication = await prisma.application.update({
+            where: { id: applicationId },
+            data: { status },
+        });
+
+        res.status(200).json({
+            message: "Application status updated successfully",
+            application: updatedApplication,
+        });
+        
+        // console.log(application);
     } catch (error) {
-        next(error); 
+        next(error);
     }
+
+
 };
 export const preCheckJob = async (
     req: Request,
@@ -99,9 +129,63 @@ export const preCheckJob = async (
     next: NextFunction
 ) => {
     try {
-       
+        const session = await auth.api.getSession({
+            headers: fromNodeHeaders(req.headers),
+        });
+
+        if (!session?.user?.id) {
+            throw new CustomError("Not authenticated", 401);
+        }
+
+        const userId = session.user.id;
+        const { jobId } = req.params;
+
+
+        const intern = await prisma.intern.findUnique({ where: { userId } });
+        if (!intern) {
+            throw new CustomError("No intern profile found", 403);
+        }
+
+        
+        const existingApplication = await prisma.application.findFirst({
+            where: {
+                jobId,
+                internId: intern.id,
+            },
+        });
+
+        if (existingApplication) {
+            return res.json({
+                applied: true,
+                status: existingApplication.status, 
+            });
+        }
+
+        return res.json({
+            applied: false,
+        });
+
     } catch (error) {
-        next(error); 
+        next(error);
+    }
+};
+
+
+export const getAllApplication = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const companyId = req.user.campanyId
+    const getApplicant = await prisma.application.findMany(
+        {
+            where:{companyId:companyId}
+        }
+    )
+    res.json(getApplicant)
+    } catch (error) {
+        next(error);
     }
 };
 
