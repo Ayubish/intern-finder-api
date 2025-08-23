@@ -243,6 +243,8 @@ model Interview {
   platform    String?   
   link        String?   
   
+  confirmed   Boolean?       @default(false)
+  
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
