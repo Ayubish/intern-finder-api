@@ -28,6 +28,17 @@ export default function NavBar() {
             <div className="flex w-8/10 gap-10 items-center justify-between">
                 <div className="flex gap-10 items-center">
 
+homepage
+                    <Link href="/listing">
+                        Internships
+                    </Link>
+                    <Link href="/listing">
+                        Companies
+                    </Link>
+                    <Link href="/aboutinterno">
+                        About Interno
+                    </Link>
+                  
                     {navigation.map((item) => {
 
                         const isActive = pathname.startsWith(item.url);
@@ -39,6 +50,7 @@ export default function NavBar() {
 
                         )
                     })}
+ main
                 </div>
 
                 <div className="flex gap-10">
