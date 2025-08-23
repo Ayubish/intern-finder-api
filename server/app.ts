@@ -8,6 +8,7 @@ import { companyRouter } from "./routes/company.route";
 import { internRouter } from "./routes/intern.route";
 import { job } from "./routes/job.route";
 import { application } from "./routes/application.route";
+import { interview } from "./routes/interview.route";
 import path from "path";
 
 const app = express();
@@ -25,11 +26,15 @@ app.use(express.json());
 app.use("/api/jobs", job);
 
 //related to application
-app.use("/api/application", verifyUser, application);
+app.use("/api/applications", verifyUser, application);
+
+//related to interviews
+app.use("/api/interviews", verifyUser, interview);
 
 //multiform registration
 app.use("/api/company", verifyUser, companyRouter);
 app.use("/api/intern", verifyUser, internRouter);
+
 // app.use("/static", express.static(path.join(__dirname, "public")));
 app.use("/static", express.static(path.join(process.cwd(), "public")));
 

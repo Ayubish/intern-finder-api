@@ -13,6 +13,7 @@ const company_route_1 = require("./routes/company.route");
 const intern_route_1 = require("./routes/intern.route");
 const job_route_1 = require("./routes/job.route");
 const application_route_1 = require("./routes/application.route");
+const interview_route_1 = require("./routes/interview.route");
 const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
@@ -24,7 +25,9 @@ app.use(express_1.default.json());
 //related to job
 app.use("/api/jobs", job_route_1.job);
 //related to application
-app.use("/api/application", auth_middleware_1.verifyUser, application_route_1.application);
+app.use("/api/applications", auth_middleware_1.verifyUser, application_route_1.application);
+//related to interviews
+app.use("/api/interviews", auth_middleware_1.verifyUser, interview_route_1.interview);
 //multiform registration
 app.use("/api/company", auth_middleware_1.verifyUser, company_route_1.companyRouter);
 app.use("/api/intern", auth_middleware_1.verifyUser, intern_route_1.internRouter);
