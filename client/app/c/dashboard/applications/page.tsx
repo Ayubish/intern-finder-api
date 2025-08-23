@@ -37,6 +37,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScheduleDialog } from "./schedule-dialog"
 import Link from "next/link"
+import { formatTimestamp } from "@/lib/utils"
+import { ApplicationDetailDialog } from "./application-dialog"
 
 const getStatusColor = (status: string) => {
     switch (status) {
@@ -82,12 +84,13 @@ export default function Applicants() {
     const [selectedApplication, setSelectedApplication] = useState<any>(null)
     const [isInterviewDialogOpen, setIsInterviewDialogOpen] = useState(false)
 
+    const [selectedDetailedApplication, setSelectedDetailedApplication] = useState<any>(null)
+    const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
 
     const filteredApplications = applications.filter((application) => {
         const matchesSearch =
-            application.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            application.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            application.email.toLowerCase().includes(searchTerm.toLowerCase())
+            application.job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            application.intern.name.toLowerCase().includes(searchTerm.toLowerCase())
 
         const matchesStatus = statusFilter === "all" || application.status === statusFilter
 
@@ -97,7 +100,6 @@ export default function Applicants() {
     const handleStatusChange = (applicationId: string, newStatus: string) => {
         updateApplication(applicationId, { status: newStatus })
     }
-
 
 
 
@@ -123,7 +125,7 @@ export default function Applicants() {
         {
             title: "Accepted",
             value: applications.filter((a) => a.status === "accepted").length,
-            change: "This month",
+            change: "Total accepted applications",
             icon: CheckCircle,
         },
     ]
@@ -139,6 +141,12 @@ export default function Applicants() {
     ];
 
     const getAvatarColor = (name: string) => colors[name.charCodeAt(0) % colors.length];
+
+    const handleViewDetails = (application: any) => {
+        // const detailedApp = getDetailedApplication(application.id) || detailedApplications[0] 
+        setSelectedDetailedApplication(application)
+        setIsDetailDialogOpen(true)
+    }
 
     if (loading) {
         return (
@@ -197,7 +205,7 @@ export default function Applicants() {
                                 <SelectItem value="all">All Status</SelectItem>
                                 <SelectItem value="new">New Application</SelectItem>
                                 <SelectItem value="under_review">Under Review</SelectItem>
-                                <SelectItem value="interview_scheduled">Interview Scheduled</SelectItem>
+                                <SelectItem value="interview">Interview Scheduled</SelectItem>
                                 <SelectItem value="accepted">Accepted</SelectItem>
                                 <SelectItem value="rejected">Rejected</SelectItem>
                             </SelectContent>
@@ -225,18 +233,18 @@ export default function Applicants() {
                         </TableHeader>
                         <TableBody>
                             {filteredApplications.map((application) => (
-                                <TableRow key={application.id}>
+                                <TableRow key={application.id} onClick={() => handleViewDetails(application)} className="cursor-pointer hover:bg-muted/50">
                                     <TableCell>
                                         <div className="flex items-center gap-3">
-                                            <Avatar className={`${getAvatarColor(application.name)}`} >
-                                                <AvatarImage src={application.avatar} />
-                                                <AvatarFallback className="bg-transparent">{application.name[1]}</AvatarFallback>
+                                            <Avatar className={`${getAvatarColor(application.intern.name)}`} >
+                                                <AvatarImage src={application.intern.image} />
+                                                <AvatarFallback className="bg-transparent">{application.intern.name[1]}</AvatarFallback>
                                             </Avatar>
 
-                                            <div className="font-medium">{application.name}</div>
+                                            <div className="font-medium">{application.intern.name}</div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{application.jobTitle}</TableCell>
+                                    <TableCell>{application.job.title}</TableCell>
                                     <TableCell>
                                         <Badge className={getStatusColor(application.status)}>
                                             <div className="flex items-center gap-1">
@@ -245,7 +253,7 @@ export default function Applicants() {
                                             </div>
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>{application.appliedDate}</TableCell>
+                                    <TableCell>{formatTimestamp(application.createdAt)}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -258,7 +266,7 @@ export default function Applicants() {
                                                     <Eye className="mr-2 h-4 w-4" />
                                                     View Profile
                                                 </DropdownMenuItem>
-                                                {application.resumeUrl && (
+                                                {application.resume && (
                                                     <DropdownMenuItem>
                                                         <Download className="mr-2 h-4 w-4" />
                                                         Download Resume
@@ -305,6 +313,15 @@ export default function Applicants() {
                 </CardContent>
             </Card>
 
+            <ApplicationDetailDialog
+                isOpen={isDetailDialogOpen}
+                onClose={() => {
+                    setIsDetailDialogOpen(false)
+                    setSelectedDetailedApplication(null)
+                }}
+                application={selectedDetailedApplication}
+                onStatusChange={handleStatusChange}
+            />
 
             {/* Schedule Interview Dialog */}
             <ScheduleDialog application={selectedApplication} isOpen={isInterviewDialogOpen} onClose={() => setIsInterviewDialogOpen(false)} setApplication={setSelectedApplication} />
