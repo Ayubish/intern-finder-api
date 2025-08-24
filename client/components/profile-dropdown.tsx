@@ -21,7 +21,7 @@ export function ProfileDropDown({ user }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <DropdownMenuItem>
-                    <Link href="/c/dashboard" className="flex gap-2">
+                    <Link href={`/${user.role[0]}/dashboard`} className="flex gap-2">
                         <LayoutDashboard />
                         Dashboard
                     </Link>

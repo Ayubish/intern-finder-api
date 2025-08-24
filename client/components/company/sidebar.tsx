@@ -1,10 +1,8 @@
 "use client"
 
 import type * as React from "react"
-import { Building2, Users, FileText, UserCheck, BarChart3, Settings, Plus, Search, UserCog } from "lucide-react"
+import { Building2, Users, FileText, UserCheck, BarChart3, Settings, Plus, Search, UserCog, LayoutDashboard } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
     Sidebar,
     SidebarContent,
@@ -24,9 +22,9 @@ import { usePathname } from "next/navigation"
 
 const navigation = [
     {
-        title: "Overview",
+        title: "Dashboard",
         url: "/c/dashboard",
-        icon: BarChart3,
+        icon: LayoutDashboard,
     },
     {
         title: "Job Listings",
@@ -35,18 +33,13 @@ const navigation = [
     },
     {
         title: "Applications",
-        url: "/c/dashboard/applicants",
+        url: "/c/dashboard/applications",
         icon: Users,
     },
     {
         title: "Interns",
         url: "/c/dashboard/interns",
         icon: UserCheck,
-    },
-    {
-        title: "Analytics",
-        url: "/c/dashboard/analytics",
-        icon: BarChart3,
     },
     {
         title: "Profile",
@@ -105,9 +98,6 @@ export function CompanySidebar({ ...props }: React.ComponentProps<typeof Sidebar
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter>
-                Nothing here
-            </SidebarFooter>
             <SidebarRail />
         </Sidebar>
     )

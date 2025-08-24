@@ -1,443 +1,329 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { useJobs } from "@/contexts/jobs-context"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { Plus, X, MapPin, DollarSign, FileText, Building, Users } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import { Plus, X, MapPin, DollarSign, FileText, Building, Users, Settings, ArrowLeft } from "lucide-react"
-import Link from "next/link"
+import { toast } from "sonner"
+
+const jobSchema = z.object({
+    title: z.string().min(2, "Title required"),
+    location: z.string().min(2, "Location required"),
+    type: z.enum(["On-site", "Hybrid", "Remote"]),
+    salary: z.string().optional(),
+    duration: z.string().optional(),
+    deadline: z.string().optional(),
+    startDate: z.string().optional(),
+    description: z.string().min(10, "Description required"),
+    responsibilities: z.string().min(10, "Responsibilities required"),
+    requirements: z.string().min(1, "Requirements required"),
+    benefits: z.string().min(1, "Benefits required"),
+    unpaid: z.boolean().optional(),
+})
+type JobForm = z.infer<typeof jobSchema>
 
 export default function EditJobPage() {
     const router = useRouter()
-    const params = useParams()
-    const { jobs, updateJob, getJob } = useJobs()
-    const [activeTab, setActiveTab] = useState("basic")
-    const [job, setJob] = useState<any>(null)
-    const [formData, setFormData] = useState({
-        title: "",
-        department: "",
-        location: "",
-        type: "Full-time",
-        salary: "",
-        description: "",
-        requirements: [""],
-        benefits: [""],
-        remote: false,
-        urgent: false,
-        status: "Draft" as const,
+    const [activeTab, setActiveTab] = useState(1)
+
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: { errors, isSubmitting },
+        setValue,
+        watch,
+        trigger,
+        getValues,
+    } = useForm<JobForm>({
+        resolver: zodResolver(jobSchema),
+        mode: "onChange",
+        defaultValues: {
+            title: "",
+            location: "",
+            type: "On-site",
+            salary: "",
+            duration: "",
+            deadline: "",
+            startDate: "",
+            description: "",
+            responsibilities: "",
+            requirements: "",
+            benefits: "",
+            unpaid: false, // Restore default for checkbox
+        },
     })
 
-    useEffect(() => {
-        if (params.id) {
-            const foundJob = getJob(params.id as string)
-            if (foundJob) {
-                setJob(foundJob)
-                setFormData({
-                    title: foundJob.title,
-                    department: foundJob.department,
-                    location: foundJob.location,
-                    type: foundJob.type,
-                    salary: foundJob.salary,
-                    description: foundJob.description,
-                    requirements: foundJob.requirements.length > 0 ? foundJob.requirements : [""],
-                    benefits: foundJob.benefits.length > 0 ? foundJob.benefits : [""],
-                    remote: foundJob.remote,
-                    urgent: foundJob.urgent,
-                    status: foundJob.status,
-                })
+
+    // Fields to validate per step
+    const stepFields = [
+        ["title", "location", "type", "salary", "duration", "deadline", "startDate"], // Step 1
+        ["description", "responsibilities"], // Step 2
+        ["requirements", "benefits"], // Step 3
+    ]
+
+    const handleNext = async () => {
+        const valid = await trigger(stepFields[activeTab - 1])
+        if (valid) setActiveTab((curr) => Math.min(3, curr + 1))
+    }
+
+    const handlePrev = () => setActiveTab((curr) => Math.max(1, curr - 1))
+
+    const onSubmit = async (data: JobForm) => {
+        const formData = new FormData()
+
+        Object.entries(data).forEach(([key, value]) => {
+            if (value !== undefined && value !== "") {
+                formData.append(key, value.toString())
             }
+        })
+        // Remove unpaid from the final data
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/jobs/create`, {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+        })
+
+        if (!res.ok) {
+            const error = await res.text()
+            toast.error(`Failed to create a job post: ${error}`)
+            return
         }
-    }, [params.id, getJob])
-
-    const addRequirement = () => {
-        setFormData({
-            ...formData,
-            requirements: [...formData.requirements, ""],
-        })
-    }
-
-    const removeRequirement = (index: number) => {
-        setFormData({
-            ...formData,
-            requirements: formData.requirements.filter((_, i) => i !== index),
-        })
-    }
-
-    const updateRequirement = (index: number, value: string) => {
-        const newRequirements = [...formData.requirements]
-        newRequirements[index] = value
-        setFormData({
-            ...formData,
-            requirements: newRequirements,
-        })
-    }
-
-    const addBenefit = () => {
-        setFormData({
-            ...formData,
-            benefits: [...formData.benefits, ""],
-        })
-    }
-
-    const removeBenefit = (index: number) => {
-        setFormData({
-            ...formData,
-            benefits: formData.benefits.filter((_, i) => i !== index),
-        })
-    }
-
-    const updateBenefit = (index: number, value: string) => {
-        const newBenefits = [...formData.benefits]
-        newBenefits[index] = value
-        setFormData({
-            ...formData,
-            benefits: newBenefits,
-        })
-    }
-
-    const handleSubmit = (status?: "Draft" | "Active") => {
-        if (!job) return
-
-        const jobData = {
-            ...formData,
-            status: status || formData.status,
-            requirements: formData.requirements.filter((req) => req.trim() !== ""),
-            benefits: formData.benefits.filter((benefit) => benefit.trim() !== ""),
-        }
-
-        updateJob(job.id, jobData)
-        router.push("/dashboard/jobs")
+        console.log("Form Data:", data)
+        toast.success("Internship listing created successfully!")
+        router.push("/c/dashboard/jobs")
     }
 
     const tabs = [
-        { id: "basic", label: "Basic Info", icon: FileText },
-        { id: "details", label: "Job Details", icon: Building },
-        { id: "requirements", label: "Requirements", icon: Users },
-        { id: "settings", label: "Settings", icon: Settings },
+        { id: 1, label: "Basic Info", icon: FileText },
+        { id: 2, label: "Job Details", icon: Building },
+        { id: 3, label: "Requirements", icon: Users },
     ]
-
-    if (!job) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Card className="w-full max-w-md">
-                    <CardHeader>
-                        <CardTitle>Job Not Found</CardTitle>
-                        <CardDescription>The job listing you're looking for doesn't exist.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Link href="/dashboard/jobs">
-                            <Button className="w-full">Back to Jobs</Button>
-                        </Link>
-                    </CardContent>
-                </Card>
-            </div>
-        )
-    }
 
     return (
         <div className="max-w-4xl mx-auto p-6">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                    <Link href="/dashboard/jobs">
-                        <Button variant="ghost" size="sm">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to Jobs
-                        </Button>
-                    </Link>
-                    <div>
-                        <h1 className="text-2xl font-bold">Edit Job Listing</h1>
-                        <p className="text-muted-foreground">Update the details for "{job.title}"</p>
-                    </div>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => handleSubmit("Draft")}>
-                        Save as Draft
-                    </Button>
-                    <Button onClick={() => handleSubmit("Active")}>
-                        {job.status === "Active" ? "Update Job" : "Publish Job"}
-                    </Button>
-                </div>
+            <div>
+                <h1 className="text-2xl font-bold">Edit Job Listing</h1>
+                <p className="text-muted-foreground">Update the details for "{job.title}"</p>
             </div>
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="max-w-4xl p-6">
+                    <div className="grid grid-cols-1 gap-6">
+                        {/* Navigation Tabs */}
+                        <div>
+                            <nav className="space-y-1 flex gap-3">
+                                {tabs.map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        type="button"
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={cn(
+                                            "w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                                            activeTab === tab.id
+                                                ? "bg-primary text-primary-foreground"
+                                                : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                                        )}
+                                        disabled={activeTab !== tab.id}
+                                    >
+                                        <tab.icon className="h-4 w-4" />
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </nav>
+                        </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* Navigation Tabs */}
-                <div className="lg:col-span-1">
-                    <nav className="space-y-1">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={cn(
-                                    "w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                                    activeTab === tab.id
-                                        ? "bg-primary text-primary-foreground"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                        {/* Form Content */}
+                        <div>
+                            <Card>
+                                {activeTab === 1 && (
+                                    <>
+                                        <CardHeader>
+                                            <CardTitle>Basic Information</CardTitle>
+                                            <CardDescription>Essential details about the job position.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="title">Title</Label>
+                                                <Input id="title" {...register("title")} placeholder="e.g. Frontend Developer" />
+                                                {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="type">Type</Label>
+                                                <Select
+                                                    value={watch("type")}
+                                                    onValueChange={val => {
+                                                        setValue("type", val as JobForm["type"])
+                                                        if (val === "Remote") setValue("location", "remote")
+                                                    }}
+                                                >
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="On-site" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="On-site">On-site</SelectItem>
+                                                        <SelectItem value="Hybrid">Hybrid</SelectItem>
+                                                        <SelectItem value="Remote">Remote</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                {errors.type && <p className="text-xs text-red-500">{errors.type.message}</p>}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="location">Location</Label>
+                                                <div className="relative">
+                                                    <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                    <Input
+                                                        id="location"
+                                                        {...register("location")}
+                                                        placeholder="e.g. San Francisco, CA"
+                                                        className="pl-8"
+                                                        disabled={watch("type") === "Remote"}
+                                                        value={watch("type") === "Remote" ? "remote" : watch("location")}
+                                                        onChange={e => setValue("location", e.target.value)}
+                                                    />
+                                                </div>
+                                                {errors.location && <p className="text-xs text-red-500">{errors.location.message}</p>}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="salary">Stipend</Label>
+                                                <div className="relative space-y-2">
+                                                    <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                                    <Input
+                                                        id="salary"
+                                                        {...register("salary")}
+                                                        placeholder="e.g. 20,000ETB - 50,000ETB or 200ETB/day"
+                                                        className="pl-8"
+                                                        disabled={watch("unpaid")}
+                                                        value={watch("unpaid") ? "unpaid" : watch("salary")}
+                                                        onChange={e => setValue("salary", e.target.value)}
+                                                    />
+                                                    <div className="flex items-center space-x-2">
+                                                        <Checkbox
+                                                            id="unpaidcheck"
+                                                            checked={watch("unpaid")}
+                                                            onCheckedChange={val => {
+                                                                setValue("unpaid", !!val)
+                                                                if (val) setValue("salary", "unpaid")
+                                                            }}
+                                                        />
+                                                        <label htmlFor="unpaidcheck">This is unpaid internship</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Duration</Label>
+                                                <Input id="duration" {...register("duration")} type="text" placeholder="e.g. 2 Months" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Application Deadline</Label>
+                                                <Input id="deadline" {...register("deadline")} type="date" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Start Date</Label>
+                                                <Input id="startDate" {...register("startDate")} type="date" />
+                                            </div>
+                                        </CardContent>
+                                    </>
                                 )}
-                            >
-                                <tab.icon className="h-4 w-4" />
-                                {tab.label}
-                            </button>
-                        ))}
-                    </nav>
-                </div>
 
-                {/* Form Content - Same as create form but with pre-filled data */}
-                <div className="lg:col-span-3">
-                    {activeTab === "basic" && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Basic Information</CardTitle>
-                                <CardDescription>Essential details about the job position.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="title">Job Title *</Label>
-                                        <Input
-                                            id="title"
-                                            value={formData.title}
-                                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                            placeholder="e.g. Senior Frontend Developer"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="department">Department *</Label>
-                                        <Select
-                                            value={formData.department}
-                                            onValueChange={(value) => setFormData({ ...formData, department: value })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select department" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Engineering">Engineering</SelectItem>
-                                                <SelectItem value="Design">Design</SelectItem>
-                                                <SelectItem value="Product">Product</SelectItem>
-                                                <SelectItem value="Marketing">Marketing</SelectItem>
-                                                <SelectItem value="Sales">Sales</SelectItem>
-                                                <SelectItem value="Analytics">Analytics</SelectItem>
-                                                <SelectItem value="HR">Human Resources</SelectItem>
-                                                <SelectItem value="Finance">Finance</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
+                                {activeTab === 2 && (
+                                    <>
+                                        <CardHeader>
+                                            <CardTitle>Job Details</CardTitle>
+                                            <CardDescription>Detailed description of the role and responsibilities.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="description">Job Description</Label>
+                                                <Textarea
+                                                    id="description"
+                                                    {...register("description")}
+                                                    rows={6}
+                                                    placeholder={`E.g. We need a passionate graphic designer with personal PC and experience in Adobe, Figma, etc ... \n \n`}
+                                                />
+                                                {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="responsibilities">Roles and Responsibilities</Label>
+                                                <Textarea
+                                                    id="responsibilities"
+                                                    {...register("responsibilities")}
+                                                    rows={6}
+                                                    placeholder={`E.g.\n- Develop and maintain web applications\n- Collaborate with cross-functional teams\n- Write clean, scalable code`}
+                                                />
+                                                {errors.responsibilities && <p className="text-xs text-red-500">{errors.responsibilities.message}</p>}
+                                            </div>
+                                        </CardContent>
+                                    </>
+                                )}
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="location">Location *</Label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                                            <Input
-                                                id="location"
-                                                value={formData.location}
-                                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                                placeholder="e.g. San Francisco, CA"
-                                                className="pl-8"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="type">Employment Type *</Label>
-                                        <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-                                            <SelectTrigger>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Full-time">Full-time</SelectItem>
-                                                <SelectItem value="Part-time">Part-time</SelectItem>
-                                                <SelectItem value="Contract">Contract</SelectItem>
-                                                <SelectItem value="Internship">Internship</SelectItem>
-                                                <SelectItem value="Freelance">Freelance</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="salary">Salary Range</Label>
-                                    <div className="relative">
-                                        <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            id="salary"
-                                            value={formData.salary}
-                                            onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
-                                            placeholder="e.g. $120,000 - $150,000 or $25/hour"
-                                            className="pl-8"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center space-x-4">
-                                    <div className="flex items-center space-x-2">
-                                        <Switch
-                                            id="remote"
-                                            checked={formData.remote}
-                                            onCheckedChange={(checked) => setFormData({ ...formData, remote: checked })}
-                                        />
-                                        <Label htmlFor="remote">Remote work available</Label>
-                                    </div>
-                                    <div className="flex items-center space-x-2">
-                                        <Switch
-                                            id="urgent"
-                                            checked={formData.urgent}
-                                            onCheckedChange={(checked) => setFormData({ ...formData, urgent: checked })}
-                                        />
-                                        <Label htmlFor="urgent">Urgent hiring</Label>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {activeTab === "details" && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Job Details</CardTitle>
-                                <CardDescription>Detailed description of the role and responsibilities.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="description">Job Description *</Label>
-                                    <Textarea
-                                        id="description"
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        placeholder="Describe the role, responsibilities, and what makes this position exciting..."
-                                        rows={8}
-                                        required
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                        Tip: Include information about the team, projects, and growth opportunities.
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {activeTab === "requirements" && (
-                        <div className="space-y-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Requirements</CardTitle>
-                                    <CardDescription>Skills, experience, and qualifications needed for this role.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {formData.requirements.map((requirement, index) => (
-                                        <div key={index} className="flex gap-2">
-                                            <Input
-                                                value={requirement}
-                                                onChange={(e) => updateRequirement(index, e.target.value)}
-                                                placeholder="e.g. 5+ years of React experience"
-                                                className="flex-1"
-                                            />
-                                            {formData.requirements.length > 1 && (
-                                                <Button type="button" variant="outline" size="icon" onClick={() => removeRequirement(index)}>
-                                                    <X className="h-4 w-4" />
-                                                </Button>
-                                            )}
-                                        </div>
-                                    ))}
-                                    <Button type="button" variant="outline" onClick={addRequirement} className="w-full bg-transparent">
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Add Requirement
+                                {activeTab === 3 && (
+                                    <>
+                                        <CardHeader>
+                                            <CardTitle>Requirements</CardTitle>
+                                            <CardDescription>Skills, experience, and qualifications needed for this role.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Textarea
+                                                    {...register("requirements")}
+                                                    placeholder={`e.g.\n- Strong communication skills\n- Experience with TypeScript\n- Team player`}
+                                                    className="w-full"
+                                                    rows={8}
+                                                />
+                                                {errors.requirements && <p className="text-xs text-red-500">{errors.requirements.message as string}</p>}
+                                            </div>
+                                        </CardContent>
+                                        <CardHeader>
+                                            <CardTitle>Benefits & Perks</CardTitle>
+                                            <CardDescription>What your company offers to employees.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Textarea
+                                                    {...register("benefits")}
+                                                    placeholder={`e.g.\n- Certificate of Completion\n- Flexible working hours\n- Networking opportunities`}
+                                                    className="w-full"
+                                                    rows={8}
+                                                />
+                                                {errors.benefits && <p className="text-xs text-red-500">{errors.benefits.message as string}</p>}
+                                            </div>
+                                        </CardContent>
+                                    </>
+                                )}
+                                <div className="flex justify-between px-8 py-4">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className={`${activeTab === 1 && "opacity-0"}`}
+                                        onClick={handlePrev}
+                                    >
+                                        Previous
                                     </Button>
-                                </CardContent>
-                            </Card>
-
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Benefits & Perks</CardTitle>
-                                    <CardDescription>What your company offers to employees.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {formData.benefits.map((benefit, index) => (
-                                        <div key={index} className="flex gap-2">
-                                            <Input
-                                                value={benefit}
-                                                onChange={(e) => updateBenefit(index, e.target.value)}
-                                                placeholder="e.g. Health insurance, 401k matching"
-                                                className="flex-1"
-                                            />
-                                            {formData.benefits.length > 1 && (
-                                                <Button type="button" variant="outline" size="icon" onClick={() => removeBenefit(index)}>
-                                                    <X className="h-4 w-4" />
-                                                </Button>
-                                            )}
-                                        </div>
-                                    ))}
-                                    <Button type="button" variant="outline" onClick={addBenefit} className="w-full bg-transparent">
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Add Benefit
-                                    </Button>
-                                </CardContent>
+                                    {activeTab < 3 ? (
+                                        <Button type="button" onClick={handleNext}>
+                                            Next
+                                        </Button>
+                                    ) : (
+                                        <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Submitting" : "Submit"}</Button>
+                                    )}
+                                </div>
                             </Card>
                         </div>
-                    )}
-
-                    {activeTab === "settings" && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Job Settings</CardTitle>
-                                <CardDescription>Configure how and when this job listing is displayed.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="space-y-4">
-                                    <h4 className="font-medium">Visibility Settings</h4>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <Label>Show salary range</Label>
-                                                <p className="text-sm text-muted-foreground">Display salary information to candidates</p>
-                                            </div>
-                                            <Switch defaultChecked />
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <Label>Allow external applications</Label>
-                                                <p className="text-sm text-muted-foreground">Accept applications from job boards</p>
-                                            </div>
-                                            <Switch defaultChecked />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <Separator />
-
-                                <div className="space-y-4">
-                                    <h4 className="font-medium">Notification Settings</h4>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <Label>Email on new applications</Label>
-                                                <p className="text-sm text-muted-foreground">Get notified when someone applies</p>
-                                            </div>
-                                            <Switch defaultChecked />
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <Label>Weekly application summary</Label>
-                                                <p className="text-sm text-muted-foreground">Receive weekly reports</p>
-                                            </div>
-                                            <Switch defaultChecked />
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
+
     )
 }

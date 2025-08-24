@@ -157,7 +157,7 @@ export default function InternOnboarding() {
             formData.append("resume", resumeFile)
         }
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/register/intern`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/intern/register`, {
             method: "POST",
             body: formData,
             credentials: "include",

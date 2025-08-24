@@ -12,6 +12,9 @@ const auth_middleware_1 = require("./middlewares/auth.middleware");
 const company_route_1 = require("./routes/company.route");
 const intern_route_1 = require("./routes/intern.route");
 const job_route_1 = require("./routes/job.route");
+const application_route_1 = require("./routes/application.route");
+const interview_route_1 = require("./routes/interview.route");
+const path_1 = __importDefault(require("path"));
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: "http://localhost:3000",
@@ -19,10 +22,16 @@ app.use((0, cors_1.default)({
 }));
 app.all("/api/auth/{*any}", (0, node_1.toNodeHandler)(auth_1.auth));
 app.use(express_1.default.json());
-//   company api
+//related to job
+app.use("/api/jobs", job_route_1.job);
+//related to application
+app.use("/api/applications", application_route_1.application);
+//related to interviews
+app.use("/api/interviews", auth_middleware_1.verifyUser, interview_route_1.interview);
+//multiform registration
 app.use("/api/company", auth_middleware_1.verifyUser, company_route_1.companyRouter);
-//intern api
 app.use("/api/intern", auth_middleware_1.verifyUser, intern_route_1.internRouter);
-app.use('/api/jobs', auth_middleware_1.verifyUser, job_route_1.job);
+// app.use("/static", express.static(path.join(__dirname, "public")));
+app.use("/static", express_1.default.static(path_1.default.join(process.cwd(), "public")));
 app.use(errorHandler_1.errorHandler);
 exports.default = app;

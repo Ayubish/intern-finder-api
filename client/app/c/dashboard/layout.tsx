@@ -1,5 +1,4 @@
 import type React from "react"
-import { Inter } from "next/font/google"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -14,15 +13,14 @@ import { CompanySidebar } from "@/components/company/sidebar"
 import { JobsProvider } from "@/contexts/jobs-context"
 import { ApplicationsProvider } from "@/contexts/applications-context"
 
-const inter = Inter({ subsets: ["latin"] })
 
-export default function RootLayout({
+export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
     return (
-        <div className={inter.className}>
+        <div>
             <SidebarProvider>
                 <JobsProvider>
                     <ApplicationsProvider>
