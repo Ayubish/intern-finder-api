@@ -32,7 +32,7 @@ app.use("/api/jobs", job);
 app.use("/api/applications", application);
 
 //related to interviews
-app.use("/api/interviews", verifyUser, interview);
+app.use("/api/interviews", interview);
 
 //multiform registration
 app.use("/api/company", companyRouter);

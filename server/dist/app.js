@@ -8,7 +8,6 @@ const node_1 = require("better-auth/node");
 const auth_1 = require("./lib/auth");
 const cors_1 = __importDefault(require("cors"));
 const errorHandler_1 = require("./middlewares/errorHandler");
-const auth_middleware_1 = require("./middlewares/auth.middleware");
 const company_route_1 = require("./routes/company.route");
 const intern_route_1 = require("./routes/intern.route");
 const job_route_1 = require("./routes/job.route");
@@ -29,7 +28,7 @@ app.use("/api/jobs", job_route_1.job);
 //related to application
 app.use("/api/applications", application_route_1.application);
 //related to interviews
-app.use("/api/interviews", auth_middleware_1.verifyUser, interview_route_1.interview);
+app.use("/api/interviews", interview_route_1.interview);
 //multiform registration
 app.use("/api/company", company_route_1.companyRouter);
 app.use("/api/intern", intern_route_1.internRouter);
