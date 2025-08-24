@@ -131,8 +131,9 @@ model Intern {
   university       String?
   major            String?
   yearOfGraduation String?
+
   gpa              Decimal?
- 
+
   application Application[]
   interview    Interview[]
   company_intern CompanyIntern[]
@@ -240,7 +241,6 @@ model Interview {
   duration    String?   
   link        String? 
   note        String?  
-  
   confirmed   Boolean?       @default(false)
   
   createdAt   DateTime      @default(now())
