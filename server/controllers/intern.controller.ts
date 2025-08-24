@@ -41,9 +41,9 @@ const registerIntern = async (
     }
 
     if (degree != "No Degree") {
-      if (!university || !GPA || !major || !yearOfGraduation) {
+      if (!university || !major || !yearOfGraduation) {
         throw new CustomError(
-          "GPA, university, major and graduation year are required for this education type",
+          "university, major and graduation year are required",
           400
         );
       }
