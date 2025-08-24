@@ -35,11 +35,11 @@ app.use("/api/applications", application);
 app.use("/api/interviews", verifyUser, interview);
 
 //multiform registration
-app.use("/api/company", verifyUser, companyRouter);
-app.use("/api/intern", verifyUser, internRouter);
+app.use("/api/company", companyRouter);
+app.use("/api/intern", internRouter);
 
 // app.use("/static", express.static(path.join(__dirname, "public")));
-app.use("/static", express.static(path.join(process.cwd(), "public")));
+app.use("/static", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(errorHandler);
 export default app;

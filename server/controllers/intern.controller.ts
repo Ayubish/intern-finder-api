@@ -55,7 +55,6 @@ const registerIntern = async (
     if (isUserRegistered?.completed == true)
       throw new CustomError("the user registered ", 400);
 
- 
     let imgUrl, resumeUrl;
     if (imageFile) {
       const resizedBuffer = await sharp(imageFile.buffer).toBuffer();
@@ -64,14 +63,14 @@ const registerIntern = async (
       const extension = path.extname(cleanFileName);
       let filename = cleanFileName?.split(".")[0];
       filename = `${filename}-${Date.now()}${extension}`;
-      const uploadDir = path.join(__dirname, "../../public/profile");
+      const uploadDir = path.join(__dirname, "../../uploads/profile");
       const filePath = path.join(uploadDir, filename);
 
       if (!fs.existsSync(uploadDir))
         fs.mkdirSync(uploadDir, { recursive: true });
       await fs.promises.writeFile(filePath, resizedBuffer);
       const baseUrl = `${req.protocol}://${req.get("host")}`;
-      imgUrl = `${baseUrl}/profile/${filename}`;
+      imgUrl = `${baseUrl}/static/profile/${filename}`;
     }
 
     if (resumeFile) {
@@ -81,7 +80,7 @@ const registerIntern = async (
       const extension = path.extname(cleanFileName);
       let filename = cleanFileName?.split(".")[0];
       filename = `${filename}-${Date.now()}${extension}`;
-      const uploadDir = path.join(__dirname, "../../public/resume");
+      const uploadDir = path.join(__dirname, "../../uploads/resume");
       const filePath = path.join(uploadDir, filename);
 
       if (!fs.existsSync(uploadDir))
@@ -89,7 +88,7 @@ const registerIntern = async (
       // await fs.promises.writeFile(filePath, resizedBuffer);
       await fs.promises.writeFile(filePath, resumeFile?.buffer);
       const baseUrl = `${req.protocol}://${req.get("host")}`;
-      resumeUrl = `${baseUrl}/profile/${filename}`;
+      resumeUrl = `${baseUrl}/static/profile/${filename}`;
     }
 
     const internData = {
@@ -110,28 +109,24 @@ const registerIntern = async (
       resume: resumeUrl || null,
       user: { connect: { id: req.user.id } },
     };
-    
 
     const userData = {
-  name,
-  image: imgUrl || null,
-  completed: true,
-};
+      name,
+      image: imgUrl || null,
+      completed: true,
+    };
 
-const db = await prisma.$transaction([
-  prisma.intern.create({
-    data: internData,
-  }),
-  prisma.user.update({
-    where: { id: req.user.id },
-    data: userData,
-  }),
-]);
-
+    const db = await prisma.$transaction([
+      prisma.intern.create({
+        data: internData,
+      }),
+      prisma.user.update({
+        where: { id: req.user.id },
+        data: userData,
+      }),
+    ]);
 
     res.json(db);
-
-   
   } catch (error) {
     next(error);
   }

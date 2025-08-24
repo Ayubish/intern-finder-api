@@ -41,7 +41,7 @@ export const applyForJob = async (
       let filename = cleanFileName.split(".")[0];
       filename = `${filename}-${Date.now()}${extension}`;
 
-      const uploadDir = path.join(__dirname, "../../public/application/resume");
+      const uploadDir = path.join(__dirname, "../../uploads/application");
       const filePath = path.join(uploadDir, filename);
 
       if (!fs.existsSync(uploadDir)) {
@@ -50,7 +50,7 @@ export const applyForJob = async (
 
       await fs.promises.writeFile(filePath, req.file.buffer);
       const baseUrl = `${req.protocol}://${req.get("host")}`;
-      resumeUrl = `${baseUrl}/application/resume/${filename}`;
+      resumeUrl = `${baseUrl}/static/application/${filename}`;
     }
 
     const { coverLetter } = req.body;
