@@ -29,7 +29,6 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     const handleSignIn = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
-        console.log("Sign in:", signInData)
         await signIn.email(signUpData, {
             onSuccess: () => {
                 toast.success("Logged in successfully!")
@@ -39,6 +38,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
             onError: (ctx) => {
                 setSignInError(ctx.error.message)
                 toast.error("Log in failed, Please try again!")
+                setLoading(false)
 
             }
         })
@@ -64,6 +64,7 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
             onError: (ctx) => {
                 setSignUpError(ctx.error.message)
                 toast.error("Sign Up failed, Please try again!")
+                setLoading(false)
 
             }
         })
@@ -74,7 +75,6 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
             provider: 'google',
 
         })
-        console.log("Continue with Google")
     }
 
     return (
