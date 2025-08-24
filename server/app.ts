@@ -10,12 +10,15 @@ import { job } from "./routes/job.route";
 import { application } from "./routes/application.route";
 import { interview } from "./routes/interview.route";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );
