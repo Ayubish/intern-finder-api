@@ -25,5 +25,14 @@ export const auth = betterAuth({
       completed: { type: "boolean", input: false },
     },
   },
+  advanced: {
+        useSecureCookies: true,
+        defaultCookieAttributes: {
+            secure: true,
+            httpOnly: true,
+            sameSite: "none",  // Allows CORS-based cookie sharing across subdomains
+            partitioned: true, // New browser standards will mandate this for foreign cookies
+        },
+    },
   trustedOrigins: [process.env.CLIENT_URL as string],
 });
