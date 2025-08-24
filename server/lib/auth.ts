@@ -25,5 +25,5 @@ export const auth = betterAuth({
       completed: { type: "boolean", input: false },
     },
   },
-  trustedOrigins: ["http://localhost:3000"],
+  trustedOrigins: [process.env.CLIENT_URL as string],
 });
