@@ -199,7 +199,7 @@ export function InternshipsProvider({ children }: { children: React.ReactNode })
     }
 
     const applyToInternship = async (internshipId: string, applicationData: any) => {
-        return api.post(`/application/${internshipId}/apply`, applicationData);
+        return api.post(`/applications/${internshipId}/apply`, applicationData);
 
         // console.log("Application submitted:", { internshipId, applicationData })
     }

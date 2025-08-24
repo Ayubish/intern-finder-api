@@ -10,52 +10,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import {
     Search,
     MoreHorizontal,
     Eye,
     Calendar,
     Mail,
-    Phone,
     Download,
     CheckCircle,
     XCircle,
     Clock,
-    Star,
     Users,
-    UserPlus,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScheduleDialog } from "./schedule-dialog"
-import Link from "next/link"
 import { formatTimestamp } from "@/lib/utils"
-import { ApplicationDetailDialog } from "./application-dialog"
+import { useRouter } from "next/navigation"
+import { getStatusColor } from "@/lib/helpers"
 
-const getStatusColor = (status: string) => {
-    switch (status) {
-        case "new":
-            return "bg-blue-100 text-blue-800"
-        case "under_review":
-            return "bg-yellow-100 text-yellow-800"
-        case "interview_scheduled":
-            return "bg-purple-100 text-purple-800"
-        case "accepted":
-            return "bg-green-100 text-green-800"
-        case "rejected":
-            return "bg-red-100 text-red-800"
-        default:
-            return "bg-gray-100 text-gray-800"
-    }
-}
 
 const getStatusIcon = (status: string) => {
     switch (status) {
@@ -77,15 +48,13 @@ const formatStatus = (status: string) => {
         .join(" ")
 }
 
-export default function Applicants() {
+export default function Applications() {
+    const router = useRouter();
     const { applications, updateApplication, loading } = useApplications()
     const [searchTerm, setSearchTerm] = useState("")
     const [statusFilter, setStatusFilter] = useState("all")
     const [selectedApplication, setSelectedApplication] = useState<any>(null)
     const [isInterviewDialogOpen, setIsInterviewDialogOpen] = useState(false)
-
-    const [selectedDetailedApplication, setSelectedDetailedApplication] = useState<any>(null)
-    const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
 
     const filteredApplications = applications.filter((application) => {
         const matchesSearch =
@@ -105,9 +74,9 @@ export default function Applicants() {
 
     const stats = [
         {
-            title: "Total Applicants",
+            title: "Total Applications",
             value: applications.length,
-            change: "+12% from last month",
+            change: "Applications so far",
             icon: Users,
         },
         {
@@ -119,7 +88,7 @@ export default function Applicants() {
         {
             title: "Interviews",
             value: applications.filter((a) => a.status === "interview_scheduled").length,
-            change: "Scheduled this week",
+            change: "Scheduled interviews",
             icon: Calendar,
         },
         {
@@ -144,8 +113,9 @@ export default function Applicants() {
 
     const handleViewDetails = (application: any) => {
         // const detailedApp = getDetailedApplication(application.id) || detailedApplications[0] 
-        setSelectedDetailedApplication(application)
-        setIsDetailDialogOpen(true)
+        // setSelectedDetailedApplication(application)
+        // setIsDetailDialogOpen(true)
+        router.push(`/c/dashboard/applications/${application.id}`)
     }
 
     if (loading) {
@@ -313,7 +283,7 @@ export default function Applicants() {
                 </CardContent>
             </Card>
 
-            <ApplicationDetailDialog
+            {/* <ApplicationDetailDialog
                 isOpen={isDetailDialogOpen}
                 onClose={() => {
                     setIsDetailDialogOpen(false)
@@ -321,7 +291,7 @@ export default function Applicants() {
                 }}
                 application={selectedDetailedApplication}
                 onStatusChange={handleStatusChange}
-            />
+            /> */}
 
             {/* Schedule Interview Dialog */}
             <ScheduleDialog application={selectedApplication} isOpen={isInterviewDialogOpen} onClose={() => setIsInterviewDialogOpen(false)} setApplication={setSelectedApplication} />

@@ -25,7 +25,7 @@ app.use(express_1.default.json());
 //related to job
 app.use("/api/jobs", job_route_1.job);
 //related to application
-app.use("/api/applications", auth_middleware_1.verifyUser, application_route_1.application);
+app.use("/api/applications", application_route_1.application);
 //related to interviews
 app.use("/api/interviews", auth_middleware_1.verifyUser, interview_route_1.interview);
 //multiform registration

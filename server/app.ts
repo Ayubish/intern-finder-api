@@ -10,12 +10,15 @@ import { job } from "./routes/job.route";
 import { application } from "./routes/application.route";
 import { interview } from "./routes/interview.route";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );
@@ -26,17 +29,17 @@ app.use(express.json());
 app.use("/api/jobs", job);
 
 //related to application
-app.use("/api/applications", verifyUser, application);
+app.use("/api/applications", application);
 
 //related to interviews
 app.use("/api/interviews", verifyUser, interview);
 
 //multiform registration
-app.use("/api/company", verifyUser, companyRouter);
-app.use("/api/intern", verifyUser, internRouter);
+app.use("/api/company", companyRouter);
+app.use("/api/intern", internRouter);
 
 // app.use("/static", express.static(path.join(__dirname, "public")));
-app.use("/static", express.static(path.join(process.cwd(), "public")));
+app.use("/static", express.static(path.join(process.cwd(), "uploads")));
 
 app.use(errorHandler);
 export default app;

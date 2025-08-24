@@ -83,7 +83,7 @@ const registerCompany = async (
       const cleanFileName = req.file?.originalname.replace(/\s+/g, "-");
       let filename = cleanFileName?.split(".")[0];
       filename = `${filename}-${Date.now()}.jpeg`;
-      const uploadDir = path.join(__dirname, "../../public/logo");
+      const uploadDir = path.join(__dirname, "../../uploads/profile");
       const filePath = path.join(uploadDir, filename);
 
       if (!fs.existsSync(uploadDir))
@@ -91,7 +91,7 @@ const registerCompany = async (
       await fs.promises.writeFile(filePath, resizedBuffer);
 
       const baseUrl = `${req.protocol}://${req.get("host")}`;
-      imgUrl = `${baseUrl}/logo/${filename}`;
+      imgUrl = `${baseUrl}/static/profile/${filename}`;
     }
 
     // console.log(imgUrl,req.file);
@@ -234,7 +234,7 @@ const registerCompany = async (
 
 // const getTotalPosts = async (req: Request, res: Response, next: NextFunction) => {
 //   try {
-    
+
 //     const jobPost = await prisma.post.findMany();
 //     //   prisma.user.update({
 //     //     where: { id: req.user.id },
@@ -255,7 +255,7 @@ const registerCompany = async (
 //   }
 // };
 
-export { registerCompany};
+export { registerCompany };
 
 // import { Express, NextFunction, Request, Response } from "express";
 // import { CustomError } from "../utils/customError";
@@ -381,5 +381,3 @@ export { registerCompany};
 
 // export default companyController;
 //
-
-
