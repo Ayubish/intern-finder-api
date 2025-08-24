@@ -99,7 +99,7 @@ export function ApplicationsProvider({ children }: { children: React.ReactNode }
         async function getApplications() {
             setLoading(true)
             try {
-                const response = await api.get("/application/company")
+                const response = await api.get("/applications/company")
                 setApplications(response.data)
             } catch (error) {
                 console.log(error)
