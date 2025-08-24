@@ -26,7 +26,7 @@ app.use(express.json());
 app.use("/api/jobs", job);
 
 //related to application
-app.use("/api/applications", verifyUser, application);
+app.use("/api/applications", application);
 
 //related to interviews
 app.use("/api/interviews", verifyUser, interview);

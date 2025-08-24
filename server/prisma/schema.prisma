@@ -112,8 +112,8 @@ model Company {
 }
 
 enum InternStatus {
-  ACTIVE
-  TERMINATED
+  active
+  terminated
 }
 
 model Intern {
@@ -142,7 +142,7 @@ model Intern {
 
   startDate DateTime?
   endDate   DateTime?
-  status    InternStatus? @default(ACTIVE)
+  status    InternStatus? @default(active)
 
  
   application Application[]
@@ -186,7 +186,7 @@ model Job {
   interview   Interview[]
   intern Intern[]
 
-  status    String   @default("Active")
+  status    String   @default("active")
   views     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -240,7 +240,7 @@ model Interview {
   type        String?
   
   location    String?   
-  platform    String?   
+  duration    String?   
   link        String?   
   
   confirmed   Boolean?       @default(false)

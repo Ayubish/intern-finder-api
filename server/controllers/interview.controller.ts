@@ -2,80 +2,75 @@ import { Express, NextFunction, Request, Response } from "express";
 import { CustomError } from "../utils/customError";
 import { prisma } from "../lib/prisma";
 
-
 export const createInterview = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { internId, jobId } = req.params;
-      const { date, type, location, platform, link } = req.body;
-  
-      const companyId = req.user.companyId;
-  
-      if (!internId || !date) {
-        throw new CustomError("Intern ID and date are required", 400);
-      }
-  
-      
-      const job = await prisma.job.findFirst({
-        where: {
-          id: jobId,
-          companyId: companyId,
-        },
-      });
-  
-      if (!job) {
-        throw new CustomError("Job not found or access denied", 404);
-      }
-  
-      const intern = await prisma.intern.findUnique({
-        where: { id: internId },
-      });
-  
-      if (!intern) {
-        throw new CustomError("Intern not found", 404);
-      }
-  
- 
-      const existingInterview = await prisma.interview.findFirst({
-        where: {
-          jobId,
-          internId,
-        },
-      });
-  
-      if (existingInterview) {
-        throw new CustomError(
-          "Interview already scheduled for this intern and job",
-          409
-        );
-      }
-  
-   
-      const interview = await prisma.interview.create({
-        data: {
-          jobId,
-          internId,
-          date: new Date(date),
-          type,
-          location,
-          platform,
-          link,
-        },
-        include: {
-          job: true,
-          intern: true,
-        },
-      });
-  
-      res.status(201).json(interview);
-    } catch (error) {
-      next(error);
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { internId, jobId } = req.params;
+    const { date, type, location, duration, link } = req.body;
+
+    const companyId = req.user.companyId;
+
+    if (!internId || !date) {
+      throw new CustomError("Intern ID and date are required", 400);
     }
-  };
-  
+
+    const job = await prisma.job.findFirst({
+      where: {
+        id: jobId,
+        companyId: companyId,
+      },
+    });
+
+    if (!job) {
+      throw new CustomError("Job not found or access denied", 404);
+    }
+
+    const intern = await prisma.intern.findUnique({
+      where: { id: internId },
+    });
+
+    if (!intern) {
+      throw new CustomError("Intern not found", 404);
+    }
+
+    const existingInterview = await prisma.interview.findFirst({
+      where: {
+        jobId,
+        internId,
+      },
+    });
+
+    if (existingInterview) {
+      throw new CustomError(
+        "Interview already scheduled for this intern and job",
+        409
+      );
+    }
+
+    const interview = await prisma.interview.create({
+      data: {
+        jobId,
+        internId,
+        date: new Date(date),
+        type,
+        location,
+        duration,
+        link,
+      },
+      include: {
+        job: true,
+        intern: true,
+      },
+    });
+
+    res.status(201).json(interview);
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const getCompanyInterviews = async (
   req: Request,
@@ -91,12 +86,12 @@ export const getCompanyInterviews = async (
           companyId: companyId,
         },
       },
-    //   include: {
-    //     job: true,
-    //     intern: true,
-    //   },
+      //   include: {
+      //     job: true,
+      //     intern: true,
+      //   },
       orderBy: {
-        date: 'asc',
+        date: "asc",
       },
     });
 
@@ -106,7 +101,6 @@ export const getCompanyInterviews = async (
   }
 };
 
-
 export const getJobInterviews = async (
   req: Request,
   res: Response,
@@ -114,8 +108,7 @@ export const getJobInterviews = async (
 ) => {
   try {
     const { jobId } = req.params;
-  const companyId = req.user.companyId;
-    
+    const companyId = req.user.companyId;
 
     const job = await prisma.job.findFirst({
       where: {
@@ -136,7 +129,7 @@ export const getJobInterviews = async (
         intern: true,
       },
       orderBy: {
-        date: 'asc',
+        date: "asc",
       },
     });
 
@@ -185,9 +178,8 @@ export const updateInterview = async (
 ) => {
   try {
     const { id } = req.params;
-    const { date, type, location, platform, link } = req.body;
+    const { date, type, location, duration, link } = req.body;
 
-    
     const existingInterview = await prisma.interview.findUnique({
       where: { id },
       include: {
@@ -206,7 +198,7 @@ export const updateInterview = async (
         date: date ? new Date(date) : undefined,
         type,
         location,
-        platform,
+        duration,
         link,
       },
       include: {
@@ -220,7 +212,6 @@ export const updateInterview = async (
     next(error);
   }
 };
-
 
 export const deleteInterview = async (
   req: Request,
@@ -240,7 +231,7 @@ export const deleteInterview = async (
     }
 
     // Delete the interview
-   const deletedInterview = await prisma.interview.delete({
+    const deletedInterview = await prisma.interview.delete({
       where: { id },
     });
 
@@ -272,7 +263,7 @@ export const getInternInterviews = async (
         },
       },
       orderBy: {
-        date: 'asc',
+        date: "asc",
       },
     });
 
@@ -291,7 +282,7 @@ export const getInterviewById = async (
     const { internId } = req.user.internId;
 
     const interview = await prisma.interview.findUnique({
-      where: { id },
+      where: { id: internId },
       include: {
         job: {
           include: {
@@ -322,11 +313,10 @@ export const confirmInterview = async (
     const { id } = req.params;
     const { confirmed } = req.body;
 
-    if (typeof confirmed !== 'boolean') {
+    if (typeof confirmed !== "boolean") {
       throw new CustomError("Confirmed field must be a boolean", 400);
     }
 
-   
     const existingInterview = await prisma.interview.findUnique({
       where: { id },
     });
@@ -335,7 +325,6 @@ export const confirmInterview = async (
       throw new CustomError("Interview not found", 404);
     }
 
-    
     const updatedInterview = await prisma.interview.update({
       where: { id },
       data: {
@@ -354,7 +343,9 @@ export const confirmInterview = async (
 
     res.json({
       ...updatedInterview,
-      message: `Interview ${confirmed ? 'confirmed' : 'unconfirmed'} successfully`,
+      message: `Interview ${
+        confirmed ? "confirmed" : "unconfirmed"
+      } successfully`,
     });
   } catch (error) {
     next(error);
