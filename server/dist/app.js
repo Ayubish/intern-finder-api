@@ -15,9 +15,11 @@ const job_route_1 = require("./routes/job.route");
 const application_route_1 = require("./routes/application.route");
 const interview_route_1 = require("./routes/interview.route");
 const path_1 = __importDefault(require("path"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
     credentials: true,
 }));
 app.all("/api/auth/{*any}", (0, node_1.toNodeHandler)(auth_1.auth));
@@ -29,9 +31,9 @@ app.use("/api/applications", application_route_1.application);
 //related to interviews
 app.use("/api/interviews", auth_middleware_1.verifyUser, interview_route_1.interview);
 //multiform registration
-app.use("/api/company", auth_middleware_1.verifyUser, company_route_1.companyRouter);
-app.use("/api/intern", auth_middleware_1.verifyUser, intern_route_1.internRouter);
+app.use("/api/company", company_route_1.companyRouter);
+app.use("/api/intern", intern_route_1.internRouter);
 // app.use("/static", express.static(path.join(__dirname, "public")));
-app.use("/static", express_1.default.static(path_1.default.join(process.cwd(), "public")));
+app.use("/static", express_1.default.static(path_1.default.join(process.cwd(), "uploads")));
 app.use(errorHandler_1.errorHandler);
 exports.default = app;

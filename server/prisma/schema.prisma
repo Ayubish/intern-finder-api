@@ -84,7 +84,7 @@ model Verification {
 }
 
 model Company {
-  id        String    @id @default(uuid())
+  id        String    @id @default(cuid())
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 
@@ -106,7 +106,6 @@ model Company {
 
   jobs        Job[]
   application Application[]
-  intern Intern[]
 
   @@map("company")
 }
@@ -117,7 +116,7 @@ enum InternStatus {
 }
 
 model Intern {
-  id String @id @default(uuid())
+  id String @id @default(cuid())
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -132,21 +131,11 @@ model Intern {
   university       String?
   major            String?
   yearOfGraduation String?
-  GPA              Decimal?
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  jobId    String?
-  job      Job?      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-
-  startDate DateTime?
-  endDate   DateTime?
-  status    InternStatus? @default(active)
-
+  gpa              Decimal?
  
   application Application[]
   interview    Interview[]
+  company_intern CompanyIntern[]
 
   about     String
   resume    String?
@@ -157,6 +146,17 @@ model Intern {
   updatedAt DateTime? @updatedAt
 
   @@map("intern")
+}
+
+model CompanyIntern {
+  id String @id @default(cuid())
+  companyId String
+  jobId    String?
+  internId String
+  intern  Intern  @relation(fields: [internId], references: [id], onDelete: Cascade)
+  startDate DateTime?
+  endDate   DateTime?
+  status    InternStatus? @default(active)
 }
 
 enum JobType {
@@ -184,7 +184,6 @@ model Job {
 
   application Application[]
   interview   Interview[]
-  intern Intern[]
 
   status    String   @default("active")
   views     Int      @default(0)
@@ -231,17 +230,16 @@ model Interview {
   
   jobId       String
   job         Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  
   internId String
   intern   Intern       @relation(fields: [internId], references: [id], onDelete: Cascade)
-  
   date        DateTime
   
   type        String?
   
   location    String?   
   duration    String?   
-  link        String?   
+  link        String? 
+  note        String?  
   
   confirmed   Boolean?       @default(false)
   
