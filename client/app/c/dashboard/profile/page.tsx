@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/contexts/auth-context"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,8 @@ import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Building2, MapPin, Phone, Mail, Globe, Users, Calendar, Award, Plus, X, Save, Upload } from "lucide-react"
 import { toast } from "sonner"
+import { useForm, Controller } from "react-hook-form"
+import { api } from "@/lib/api"
 
 interface CompanyProfile {
     name: string
@@ -26,7 +28,7 @@ interface CompanyProfile {
     headQuarter: string
     additionalLocations: string[]
     values: string[]
-    logo: string
+    image: string
 }
 
 const industries = [
@@ -55,122 +57,210 @@ export default function ProfilePage() {
     const { user } = useAuth()
     const [isEditing, setIsEditing] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const [fetchError, setFetchError] = useState<string | null>(null)
+    const [apiError, setApiError] = useState<string | null>(null)
     const [newLocation, setNewLocation] = useState("")
     const [newValue, setNewValue] = useState("")
+    const [profile, setProfile] = useState<CompanyProfile | null>(null)
+    const [imagePreview, setImagePreview] = useState<string>("")
+    const imageFileRef = useRef<File | null>(null)
 
-    // Mock company profile data - in real app this would come from API
-    const [profile, setProfile] = useState<CompanyProfile>({
-        name: user?.company || "TechCorp Inc.",
-        industry: "Technology",
-        description:
-            "We are a leading technology company focused on innovation and excellence. Our team is dedicated to creating cutting-edge solutions that make a difference in the world.",
-        size: "51-200 employees",
-        year: 2020,
-        contactEmail: user?.email || "hr@techcorp.com",
-        phone: "+1 (555) 123-4567",
-        website: "https://techcorp.com",
-        headQuarter: "San Francisco, CA",
-        additionalLocations: ["New York, NY", "Austin, TX"],
-        values: ["Innovation", "Collaboration", "Integrity", "Excellence"],
-        logo: "/placeholder.svg?height=100&width=100&text=TC",
+    const { register, handleSubmit, control, reset, watch, setValue } = useForm<CompanyProfile>({
+        defaultValues: undefined,
     })
 
-    // Calculate profile completion percentage
+    // Fetch company profile from API
+    useEffect(() => {
+        const fetchCompanyInfo = async () => {
+            setIsLoading(true)
+            setFetchError(null)
+            try {
+                const res = await api.get("/company")
+                let data = res.data
+                // Parse additionalLocations and values as arrays
+                data.additionalLocations = parseStringOrArray(data.additionalLocations)
+                data.values = parseStringOrArray(data.values)
+                setProfile(data)
+                setImagePreview(data.image || "")
+                reset(data)
+            } catch {
+                setFetchError("Failed to load company profile.")
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        fetchCompanyInfo()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    // Keep form in sync with profile when not editing
+    useEffect(() => {
+        if (profile && !isEditing) {
+            reset(profile)
+            setImagePreview(profile.image || "")
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [profile, isEditing])
+
+    // Helper: parse stringified array or array or fallback
+    function parseStringOrArray(val: any): string[] {
+        if (Array.isArray(val)) return val
+        if (typeof val === "string") {
+            try {
+                const parsed = JSON.parse(val)
+                if (Array.isArray(parsed)) return parsed
+            } catch {
+                // fallback to comma split
+                return val.split(",").map((s: string) => s.trim()).filter(Boolean)
+            }
+        }
+        return []
+    }
+
+    // Profile completion
     const calculateCompletion = () => {
+        if (!profile) return 0
         const fields = [
-            profile.name,
-            profile.industry,
-            profile.description,
-            profile.size,
-            profile.year,
-            profile.contactEmail,
-            profile.phone,
-            profile.website,
-            profile.headQuarter,
-            profile.logo,
+            watch("name"),
+            watch("industry"),
+            watch("description"),
+            watch("size"),
+            watch("year"),
+            watch("contactEmail"),
+            watch("phone"),
+            watch("website"),
+            watch("headQuarter"),
+            imagePreview,
         ]
-
         const filledFields = fields.filter((field) => field && field.toString().trim() !== "").length
-        const additionalPoints = (profile.additionalLocations.length > 0 ? 1 : 0) + (profile.values.length > 0 ? 1 : 0)
-
-        return Math.round(((filledFields + additionalPoints) / (fields.length + 2)) * 100)
+        return Math.round(((filledFields) / (fields.length + 2)) * 100)
     }
-
     const completionPercentage = calculateCompletion()
-
-    const handleSave = async () => {
-        setIsSaving(true)
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        setIsEditing(false)
-        setIsSaving(false)
-        toast.success(
-            <div>
-                <h3 className="font-semibold">Profile Updated</h3>
-                <p>Your company profile has been successfully updated.</p>
-            </div>
-        )
-    }
-
-    const addLocation = () => {
-        if (newLocation.trim() && !profile.additionalLocations.includes(newLocation.trim())) {
-            setProfile((prev) => ({
-                ...prev,
-                additionalLocations: [...prev.additionalLocations, newLocation.trim()],
-            }))
-            setNewLocation("")
-        }
-    }
-
-    const removeLocation = (location: string) => {
-        setProfile((prev) => ({
-            ...prev,
-            additionalLocations: prev.additionalLocations.filter((loc) => loc !== location),
-        }))
-    }
-
-    const addValue = () => {
-        if (newValue.trim() && !profile.values.includes(newValue.trim())) {
-            setProfile((prev) => ({
-                ...prev,
-                values: [...prev.values, newValue.trim()],
-            }))
-            setNewValue("")
-        }
-    }
-
-    const removeValue = (value: string) => {
-        setProfile((prev) => ({
-            ...prev,
-            values: prev.values.filter((val) => val !== value),
-        }))
-    }
-
     const getCompletionColor = () => {
         if (completionPercentage >= 80) return "text-green-600"
         if (completionPercentage >= 60) return "text-yellow-600"
         return "text-red-600"
     }
-
     const getCompletionMessage = () => {
         if (completionPercentage >= 80) return "Great! Your profile is almost complete."
         if (completionPercentage >= 60) return "Good progress! Add more details to improve your profile."
         return "Your profile needs more information to attract top talent."
     }
 
-    // if (!user) {
-    //     return (
-    //         <div className="flex items-center justify-center min-h-screen">
-    //             <Card className="w-full max-w-md">
-    //                 <CardHeader>
-    //                     <CardTitle>Access Denied</CardTitle>
-    //                     <CardDescription>Please log in to access your profile.</CardDescription>
-    //                 </CardHeader>
-    //             </Card>
-    //         </div>
-    //     )
-    // }
+    // Add/Remove locations and values
+    const addLocation = () => {
+        if (!profile) return
+        const loc = newLocation.trim()
+        if (loc && !profile.additionalLocations.includes(loc)) {
+            const updated = { ...profile, additionalLocations: [...profile.additionalLocations, loc] }
+            setProfile(updated)
+            setNewLocation("")
+            if (isEditing) reset(updated)
+        }
+    }
+    const removeLocation = (location: string) => {
+        if (!profile) return
+        const updated = { ...profile, additionalLocations: profile.additionalLocations.filter((loc) => loc !== location) }
+        setProfile(updated)
+        if (isEditing) reset(updated)
+    }
+    const addValue = () => {
+        if (!profile) return
+        const val = newValue.trim()
+        if (val && !profile.values.includes(val)) {
+            const updated = { ...profile, values: [...profile.values, val] }
+            setProfile(updated)
+            setNewValue("")
+            if (isEditing) reset(updated)
+        }
+    }
+    const removeValue = (value: string) => {
+        if (!profile) return
+        const updated = { ...profile, values: profile.values.filter((val) => val !== value) }
+        setProfile(updated)
+        if (isEditing) reset(updated)
+    }
 
+    // Handle image preview and file selection
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            imageFileRef.current = file
+            const url = URL.createObjectURL(file)
+            setImagePreview(url)
+            setValue("image", url)
+        }
+    }
+
+    // Form submit handler
+    const onSubmit = async (data: CompanyProfile) => {
+        setIsSaving(true)
+        setApiError(null)
+        try {
+            const formData = new FormData()
+            // Append all fields to FormData
+            Object.entries(data).forEach(([key, value]) => {
+                if (key === "additionalLocations" || key === "values") {
+                    formData.append(key, JSON.stringify(profile?.[key] || []))
+                } else if (key !== "image") {
+                    formData.append(key, value == null ? "" : value as any)
+                }
+            })
+            // Append image file if selected, otherwise append image URL if present
+            if (imageFileRef.current) {
+                formData.append("image", imageFileRef.current)
+            } else if (profile?.image) {
+                formData.append("image", profile.image)
+            }
+            await api.post("/company/update", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            })
+            setProfile({
+                ...data,
+                image: imageFileRef.current
+                    ? imagePreview
+                    : profile?.image || "",
+                additionalLocations: profile?.additionalLocations || [],
+                values: profile?.values || [],
+            })
+            setIsEditing(false)
+            imageFileRef.current = null
+            toast.success(
+                <div>
+                    <h3 className="font-semibold">Profile Updated</h3>
+                    <p>Your company profile has been successfully updated.</p>
+                </div>
+            )
+        } catch (err: any) {
+            setApiError("Failed to update profile. Please try again.")
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <span>Loading company profile...</span>
+            </div>
+        )
+    }
+    if (fetchError) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Card className="w-full max-w-md">
+                    <CardHeader>
+                        <CardTitle>Error</CardTitle>
+                        <CardDescription>{fetchError}</CardDescription>
+                    </CardHeader>
+                </Card>
+            </div>
+        )
+    }
+    if (!profile) return null
+
+    // ...existing code for rendering...
     return (
         <div className="flex flex-1 flex-col gap-6 p-4 pt-0">
             {/* Header */}
@@ -182,16 +272,16 @@ export default function ProfilePage() {
                 <div className="flex gap-2">
                     {isEditing ? (
                         <>
-                            <Button variant="outline" onClick={() => setIsEditing(false)}>
+                            <Button variant="outline" type="button" onClick={() => { setIsEditing(false); reset(profile); setImagePreview(profile.image || "") }} disabled={isSaving}>
                                 Cancel
                             </Button>
-                            <Button onClick={handleSave} disabled={isSaving}>
+                            <Button type="submit" onClick={handleSubmit(onSubmit)} disabled={isSaving}>
                                 <Save className="mr-2 h-4 w-4" />
                                 {isSaving ? "Saving..." : "Save Changes"}
                             </Button>
                         </>
                     ) : (
-                        <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+                        <Button type="button" onClick={() => setIsEditing(true)}>Edit Profile</Button>
                     )}
                 </div>
             </div>
@@ -217,197 +307,207 @@ export default function ProfilePage() {
                 </CardContent>
             </Card>
 
-            <div className="grid gap-6 md:grid-cols-2">
-                {/* Basic Information */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Building2 className="h-5 w-5" />
-                            Basic Information
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        {/* Company Logo */}
-                        <div className="space-y-2">
-                            <Label>Company Logo</Label>
-                            <div className="flex items-center gap-4">
-                                <img
-                                    src={profile.logo || "/placeholder.svg"}
-                                    alt="Company Logo"
-                                    className="h-16 w-16 rounded-lg border object-cover"
-                                />
-                                {isEditing && (
-                                    <Button variant="outline" size="sm">
-                                        <Upload className="mr-2 h-4 w-4" />
-                                        Upload Logo
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Company Name</Label>
-                            <Input
-                                id="name"
-                                value={profile.name}
-                                onChange={(e) => setProfile((prev) => ({ ...prev, name: e.target.value }))}
-                                disabled={!isEditing}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="industry">Industry</Label>
-                            <Select
-                                value={profile.industry}
-                                onValueChange={(value) => setProfile((prev) => ({ ...prev, industry: value }))}
-                                disabled={!isEditing}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {industries.map((industry) => (
-                                        <SelectItem key={industry} value={industry}>
-                                            {industry}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="size">Company Size</Label>
-                            <Select
-                                value={profile.size}
-                                onValueChange={(value) => setProfile((prev) => ({ ...prev, size: value }))}
-                                disabled={!isEditing}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {companySizes.map((size) => (
-                                        <SelectItem key={size} value={size}>
-                                            {size}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="year">Founded Year</Label>
-                            <Input
-                                id="year"
-                                type="number"
-                                value={profile.year || ""}
-                                onChange={(e) => setProfile((prev) => ({ ...prev, year: Number.parseInt(e.target.value) || null }))}
-                                disabled={!isEditing}
-                                placeholder="e.g., 2020"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Company Description</Label>
-                            <Textarea
-                                id="description"
-                                value={profile.description}
-                                onChange={(e) => setProfile((prev) => ({ ...prev, description: e.target.value }))}
-                                disabled={!isEditing}
-                                rows={4}
-                                placeholder="Tell us about your company..."
-                            />
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Contact Information */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Phone className="h-5 w-5" />
-                            Contact Information
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Contact Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={profile.contactEmail}
-                                onChange={(e) => setProfile((prev) => ({ ...prev, contactEmail: e.target.value }))}
-                                disabled={!isEditing}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="phone">Phone Number</Label>
-                            <Input
-                                id="phone"
-                                value={profile.phone}
-                                onChange={(e) => setProfile((prev) => ({ ...prev, phone: e.target.value }))}
-                                disabled={!isEditing}
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="website">Website</Label>
-                            <Input
-                                id="website"
-                                value={profile.website}
-                                onChange={(e) => setProfile((prev) => ({ ...prev, website: e.target.value }))}
-                                disabled={!isEditing}
-                                placeholder="https://yourcompany.com"
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="headquarters">Headquarters</Label>
-                            <Input
-                                id="headquarters"
-                                value={profile.headQuarter}
-                                onChange={(e) => setProfile((prev) => ({ ...prev, headQuarter: e.target.value }))}
-                                disabled={!isEditing}
-                                placeholder="City, State/Country"
-                            />
-                        </div>
-
-                        {/* Additional Locations */}
-                        <div className="space-y-2">
-                            <Label>Additional Locations</Label>
+            <form onSubmit={handleSubmit(onSubmit)} className="contents">
+                <div className="grid gap-6 md:grid-cols-2">
+                    {/* Basic Information */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Building2 className="h-5 w-5" />
+                                Basic Information
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {/* Company Logo */}
                             <div className="space-y-2">
-                                {profile.additionalLocations.map((location) => (
-                                    <div key={location} className="flex items-center gap-2">
-                                        <Badge variant="secondary" className="flex items-center gap-1">
-                                            <MapPin className="h-3 w-3" />
-                                            {location}
-                                            {isEditing && (
-                                                <button onClick={() => removeLocation(location)} className="ml-1 hover:text-red-500">
-                                                    <X className="h-3 w-3" />
-                                                </button>
-                                            )}
-                                        </Badge>
-                                    </div>
-                                ))}
-                                {isEditing && (
-                                    <div className="flex gap-2">
-                                        <Input
-                                            value={newLocation}
-                                            onChange={(e) => setNewLocation(e.target.value)}
-                                            placeholder="Add location..."
-                                            onKeyPress={(e) => e.key === "Enter" && addLocation()}
-                                        />
-                                        <Button size="sm" onClick={addLocation}>
-                                            <Plus className="h-4 w-4" />
+                                <Label>Company Logo</Label>
+                                <div className="flex items-center gap-4">
+                                    <img
+                                        src={imagePreview || "/placeholder.svg"}
+                                        alt="Company Logo"
+                                        className="h-16 w-16 rounded-lg border object-cover"
+                                    />
+                                    {isEditing && (
+                                        <Button variant="outline" size="sm" className="relative" type="button">
+                                            <Upload className="mr-2 h-4 w-4" />
+                                            Upload image
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                onChange={handleImageChange}
+                                            />
                                         </Button>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+                            {/* ...existing code for other fields... */}
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Company Name</Label>
+                                <Input
+                                    id="name"
+                                    {...register("name")}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="industry">Industry</Label>
+                                <Controller
+                                    control={control}
+                                    name="industry"
+                                    render={({ field }) => (
+                                        <Select
+                                            value={field.value}
+                                            onValueChange={field.onChange}
+                                            disabled={!isEditing}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {industries.map((industry) => (
+                                                    <SelectItem key={industry} value={industry}>
+                                                        {industry}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="size">Company Size</Label>
+                                <Controller
+                                    control={control}
+                                    name="size"
+                                    render={({ field }) => (
+                                        <Select
+                                            value={field.value}
+                                            onValueChange={field.onChange}
+                                            disabled={!isEditing}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {companySizes.map((size) => (
+                                                    <SelectItem key={size} value={size}>
+                                                        {size}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="year">Founded Year</Label>
+                                <Input
+                                    id="year"
+                                    type="number"
+                                    {...register("year", {
+                                        setValueAs: v => v === "" ? null : Number.parseInt(v)
+                                    })}
+                                    disabled={!isEditing}
+                                    placeholder="e.g., 2020"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="description">Company Description</Label>
+                                <Textarea
+                                    id="description"
+                                    {...register("description")}
+                                    disabled={!isEditing}
+                                    rows={4}
+                                    placeholder="Tell us about your company..."
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Contact Information */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Phone className="h-5 w-5" />
+                                Contact Information
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Contact Email</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    {...register("contactEmail")}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone Number</Label>
+                                <Input
+                                    id="phone"
+                                    {...register("phone")}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="website">Website</Label>
+                                <Input
+                                    id="website"
+                                    {...register("website")}
+                                    disabled={!isEditing}
+                                    placeholder="https://yourcompany.com"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="headquarters">Headquarters</Label>
+                                <Input
+                                    id="headquarters"
+                                    {...register("headQuarter")}
+                                    disabled={!isEditing}
+                                    placeholder="City, State/Country"
+                                />
+                            </div>
+                            {/* Additional Locations */}
+                            <div className="space-y-2">
+                                <Label>Additional Locations</Label>
+                                <div className="space-y-2">
+                                    {profile.additionalLocations?.map((location) => (
+                                        <div key={location} className="flex items-center gap-2">
+                                            <Badge variant="secondary" className="flex items-center gap-1">
+                                                <MapPin className="h-3 w-3" />
+                                                {location}
+                                                {isEditing && (
+                                                    <button type="button" onClick={() => removeLocation(location)} className="ml-1 hover:text-red-500">
+                                                        <X className="h-3 w-3" />
+                                                    </button>
+                                                )}
+                                            </Badge>
+                                        </div>
+                                    ))}
+                                    {isEditing && (
+                                        <div className="flex gap-2">
+                                            <Input
+                                                value={newLocation}
+                                                onChange={(e) => setNewLocation(e.target.value)}
+                                                placeholder="Add location..."
+                                                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addLocation())}
+                                            />
+                                            <Button size="sm" type="button" onClick={addLocation}>
+                                                <Plus className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+                {apiError && (
+                    <div className="text-red-600 text-sm mt-2">{apiError}</div>
+                )}
+            </form>
 
             {/* Company Values */}
             <Card>
@@ -421,11 +521,11 @@ export default function ProfilePage() {
                 <CardContent>
                     <div className="space-y-4">
                         <div className="flex flex-wrap gap-2">
-                            {profile.values.map((value) => (
+                            {profile.values?.map((value) => (
                                 <Badge key={value} variant="outline" className="flex items-center gap-1">
                                     {value}
                                     {isEditing && (
-                                        <button onClick={() => removeValue(value)} className="ml-1 hover:text-red-500">
+                                        <button type="button" onClick={() => removeValue(value)} className="ml-1 hover:text-red-500">
                                             <X className="h-3 w-3" />
                                         </button>
                                     )}
@@ -438,9 +538,9 @@ export default function ProfilePage() {
                                     value={newValue}
                                     onChange={(e) => setNewValue(e.target.value)}
                                     placeholder="Add company value..."
-                                    onKeyPress={(e) => e.key === "Enter" && addValue()}
+                                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addValue())}
                                 />
-                                <Button size="sm" onClick={addValue}>
+                                <Button size="sm" type="button" onClick={addValue}>
                                     <Plus className="h-4 w-4" />
                                 </Button>
                             </div>
@@ -459,7 +559,7 @@ export default function ProfilePage() {
                     <div className="space-y-4">
                         <div className="flex items-start gap-4">
                             <img
-                                src={profile.logo || "/placeholder.svg"}
+                                src={profile.image || "/placeholder.svg"}
                                 alt={profile.name}
                                 className="h-16 w-16 rounded-lg border object-cover"
                             />
@@ -487,7 +587,7 @@ export default function ProfilePage() {
                         <p className="text-sm text-muted-foreground">{profile.description}</p>
 
                         <div className="flex flex-wrap gap-2">
-                            {profile.values.map((value) => (
+                            {profile.values?.map((value) => (
                                 <Badge key={value} variant="secondary">
                                     {value}
                                 </Badge>
