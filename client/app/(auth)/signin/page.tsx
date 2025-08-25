@@ -84,7 +84,7 @@ export default function CompanySignUp() {
 
 
                         <Button type="submit" disabled={loading} className="w-full shadow-sm py-1 text-base">
-                            {loading ? "Loading" : "Sign In"}
+                            {loading ? "Loading..." : "Sign In"}
                         </Button>
                     </form>
 
