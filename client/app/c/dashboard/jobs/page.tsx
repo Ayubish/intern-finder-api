@@ -66,7 +66,7 @@ export default function JobListings() {
     const [statusFilter, setStatusFilter] = useState("all")
     const [typeFilter, setTypeFilter] = useState("all")
     const [selectedJob, setSelectedJob] = useState<any>(null)
-    const jobslist = jobs.jobs
+    const jobslist = jobs
 
     const filteredJobs = jobslist.filter((job) => {
         const matchesSearch =
@@ -139,7 +139,7 @@ export default function JobListings() {
                         <Eye className="h-4 w-4 text-purple-600" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{jobs.totalViews}</div>
+                        <div className="text-2xl font-bold">{10}</div>
                         <p className="text-xs text-muted-foreground">Job listing page views</p>
                     </CardContent>
                 </Card>
@@ -149,7 +149,7 @@ export default function JobListings() {
                         <Clock className="h-4 w-4 text-yellow-600" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{jobs.totalJobs}</div>
+                        <div className="text-2xl font-bold">{jobs.length}</div>
                         <p className="text-xs text-muted-foreground">Total jobs published</p>
                     </CardContent>
                 </Card>

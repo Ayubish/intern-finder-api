@@ -2,8 +2,8 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
-// import { supabase } from "@/lib/supabase"
-// import { useAuth } from "./auth-context"
+import { api } from "@/lib/api"
+
 
 interface Job {
     id: string
@@ -33,7 +33,7 @@ interface JobRes {
 }
 
 interface JobsContextType {
-    jobs: JobRes
+    jobs: Job[]
     addJob: (job: Omit<Job, "id" | "applicants" | "views" | "posted">) => Promise<void>
     updateJob: (id: string, job: Partial<Job>) => Promise<void>
     deleteJob: (id: string) => Promise<void>
@@ -73,11 +73,12 @@ const MOCK_JOBS: JobRes = {
 
 
 export function JobsProvider({ children }: { children: React.ReactNode }) {
-    const [jobs, setJobs] = useState<JobRes>({
-        jobs: [],
-        totalViews: 0,
-        totalJobs: 0
-    })
+    // const [jobs, setJobs] = useState<JobRes>({
+    //     jobs: [],
+    //     totalViews: 0,
+    //     totalJobs: 0
+    // })
+    const [jobs, setJobs] = useState<Job[]>([])
     const [loading, setLoading] = useState(true)
     // const { user } = useAuth()
 
@@ -87,9 +88,8 @@ export function JobsProvider({ children }: { children: React.ReactNode }) {
 
     const refreshJobs = async () => {
         setLoading(true)
-        // Simulate async fetch
-        await new Promise((res) => setTimeout(res, 300))
-        setJobs(MOCK_JOBS)
+        const res = await api.get("/jobs")
+        setJobs(res.data)
         setLoading(false)
     }
 
@@ -128,7 +128,7 @@ export function JobsProvider({ children }: { children: React.ReactNode }) {
     }
 
     const getJob = (id: string) => {
-        return jobs?.jobs.find((job) => job.id === id)
+        return jobs.find((job) => job.id === id)
     }
 
     return (
@@ -145,193 +145,3 @@ export function useJobs() {
     }
     return context
 }
-
-
-// "use client"
-
-// import type React from "react"
-// import { createContext, useContext, useState, useEffect } from "react"
-// import { supabase } from "@/lib/supabase"
-// import { useAuth } from "./auth-context"
-
-// interface Job {
-//     id: string
-//     title: string
-//     department: string
-//     location: string
-//     type: string
-//     status: "Active" | "Draft" | "Closed" | "Paused"
-//     applicants: number
-//     views: number
-//     posted: string
-//     expires?: string
-//     salary: string
-//     description: string
-//     requirements: string[]
-//     benefits: string[]
-//     remote: boolean
-//     urgent: boolean
-// }
-
-// interface JobsContextType {
-//     jobs: Job[]
-//     addJob: (job: Omit<Job, "id" | "applicants" | "views" | "posted">) => Promise<void>
-//     updateJob: (id: string, job: Partial<Job>) => Promise<void>
-//     deleteJob: (id: string) => Promise<void>
-//     getJob: (id: string) => Job | undefined
-//     loading: boolean
-//     refreshJobs: () => Promise<void>
-// }
-
-// const JobsContext = createContext<JobsContextType | undefined>(undefined)
-
-// export function JobsProvider({ children }: { children: React.ReactNode }) {
-//     const [jobs, setJobs] = useState<Job[]>([])
-//     const [loading, setLoading] = useState(true)
-//     const { user } = useAuth()
-
-//     useEffect(() => {
-//         if (user) {
-//             refreshJobs()
-//         }
-//     }, [user])
-
-//     const refreshJobs = async () => {
-//         if (!user) return
-
-//         try {
-//             setLoading(true)
-//             const { data, error } = await supabase
-//                 .from("jobs")
-//                 .select(`
-//           *,
-//           applications (count)
-//         `)
-//                 .eq("company_id", user.companyId)
-//                 .order("created_at", { ascending: false })
-
-//             if (error) throw error
-
-//             const jobsWithCounts = data.map((job: any) => ({
-//                 id: job.id,
-//                 title: job.title,
-//                 department: job.department,
-//                 location: job.location,
-//                 type: job.type,
-//                 status: job.status,
-//                 applicants: job.applications?.[0]?.count || 0,
-//                 views: job.views,
-//                 posted: new Date(job.created_at).toISOString().split("T")[0],
-//                 expires: job.expires_at ? new Date(job.expires_at).toISOString().split("T")[0] : undefined,
-//                 salary: job.salary || "",
-//                 description: job.description,
-//                 requirements: job.requirements || [],
-//                 benefits: job.benefits || [],
-//                 remote: job.remote,
-//                 urgent: job.urgent,
-//             }))
-
-//             setJobs(jobsWithCounts)
-//         } catch (error) {
-//             console.error("Error fetching jobs:", error)
-//         } finally {
-//             setLoading(false)
-//         }
-//     }
-
-//     const addJob = async (jobData: Omit<Job, "id" | "applicants" | "views" | "posted">) => {
-//         if (!user) return
-
-//         try {
-//             const { data, error } = await supabase
-//                 .from("jobs")
-//                 .insert({
-//                     company_id: user.companyId,
-//                     title: jobData.title,
-//                     department: jobData.department,
-//                     location: jobData.location,
-//                     type: jobData.type,
-//                     status: jobData.status.toLowerCase(),
-//                     salary: jobData.salary,
-//                     description: jobData.description,
-//                     requirements: jobData.requirements,
-//                     benefits: jobData.benefits,
-//                     remote: jobData.remote,
-//                     urgent: jobData.urgent,
-//                     expires_at: jobData.expires ? new Date(jobData.expires).toISOString() : null,
-//                 })
-//                 .select()
-//                 .single()
-
-//             if (error) throw error
-
-//             await refreshJobs()
-//         } catch (error) {
-//             console.error("Error adding job:", error)
-//             throw error
-//         }
-//     }
-
-//     const updateJob = async (id: string, jobData: Partial<Job>) => {
-//         try {
-//             const updateData: any = {}
-
-//             if (jobData.title) updateData.title = jobData.title
-//             if (jobData.department) updateData.department = jobData.department
-//             if (jobData.location) updateData.location = jobData.location
-//             if (jobData.type) updateData.type = jobData.type
-//             if (jobData.status) updateData.status = jobData.status.toLowerCase()
-//             if (jobData.salary !== undefined) updateData.salary = jobData.salary
-//             if (jobData.description) updateData.description = jobData.description
-//             if (jobData.requirements) updateData.requirements = jobData.requirements
-//             if (jobData.benefits) updateData.benefits = jobData.benefits
-//             if (jobData.remote !== undefined) updateData.remote = jobData.remote
-//             if (jobData.urgent !== undefined) updateData.urgent = jobData.urgent
-//             if (jobData.expires !== undefined) {
-//                 updateData.expires_at = jobData.expires ? new Date(jobData.expires).toISOString() : null
-//             }
-
-//             updateData.updated_at = new Date().toISOString()
-
-//             const { error } = await supabase.from("jobs").update(updateData).eq("id", id)
-
-//             if (error) throw error
-
-//             await refreshJobs()
-//         } catch (error) {
-//             console.error("Error updating job:", error)
-//             throw error
-//         }
-//     }
-
-//     const deleteJob = async (id: string) => {
-//         try {
-//             const { error } = await supabase.from("jobs").delete().eq("id", id)
-
-//             if (error) throw error
-
-//             await refreshJobs()
-//         } catch (error) {
-//             console.error("Error deleting job:", error)
-//             throw error
-//         }
-//     }
-
-//     const getJob = (id: string) => {
-//         return jobs.find((job) => job.id === id)
-//     }
-
-//     return (
-//         <JobsContext.Provider value={{ jobs, addJob, updateJob, deleteJob, getJob, loading, refreshJobs }}>
-//             {children}
-//         </JobsContext.Provider>
-//     )
-// }
-
-// export function useJobs() {
-//     const context = useContext(JobsContext)
-//     if (context === undefined) {
-//         throw new Error("useJobs must be used within a JobsProvider")
-//     }
-//     return context
-// }
