@@ -14,7 +14,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Plus, X, MapPin, DollarSign, FileText, Building, Users } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 import { toast } from "sonner"
+
 
 const jobSchema = z.object({
     title: z.string().min(2, "Title required"),
@@ -88,20 +90,13 @@ export default function NewJobPage() {
             }
         })
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/jobs/create`, {
-            method: "POST",
-            body: formData,
-            credentials: "include",
-        })
-
-        if (!res.ok) {
-            const error = await res.text()
+        try {
+            await api.post("/jobs/create", formData)
+            toast.success("Internship listing created successfully!")
+            router.push("/c/dashboard/jobs")
+        } catch (error) {
             toast.error(`Failed to create a job post: ${error}`)
-            return
         }
-        console.log("Form Data:", data)
-        toast.success("Internship listing created successfully!")
-        router.push("/c/dashboard/jobs")
     }
 
     const tabs = [
