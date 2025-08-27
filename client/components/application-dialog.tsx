@@ -36,7 +36,7 @@ export function ApplicationDialog({ isOpen, onClose, internship }: ApplicationDi
             // 5MB limit
             setFormData((prev) => ({ ...prev, resume: file }))
         } else if (file) {
-            alert("File size must be less than 5MB")
+            toast.error("File size must be less than 5MB")
         }
     }
 
@@ -49,7 +49,12 @@ export function ApplicationDialog({ isOpen, onClose, internship }: ApplicationDi
         setIsSubmitting(true)
 
         try {
-            await applyToInternship(internship.id, formData)
+            const data = new FormData()
+            data.append("coverLetter", formData.coverLetter)
+            if (formData.resume) {
+                data.append("resume", formData.resume)
+            }
+            await applyToInternship(internship.id, data)
             setIsSubmitted(true)
         } catch {
             toast.error("Failed to submit application. Please try again.")
