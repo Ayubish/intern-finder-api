@@ -96,7 +96,7 @@ export default function InternOnboarding() {
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isSubmitting },
         watch,
         setValue,
         trigger,
@@ -598,8 +598,8 @@ export default function InternOnboarding() {
                         </Button>
 
                         {currentStep === totalSteps ? (
-                            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-                                Complete Profile
+                            <Button type="submit" disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700">
+                                {isSubmitting ? "Submitting..." : "Complete Profile"}
                             </Button>
                         ) : (
                             <Button type="button" onClick={nextStep} className="bg-blue-600 hover:bg-blue-700">
